@@ -11,6 +11,26 @@ try {
 if (isset($_SESSION['username'])) {
     header('location:home.php');
 }
+
+if (isset($_POST['login'])) {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    $record = $db->prepare('SELECT username, password FROM t_users WHERE username= :username');
+    $record->bindParam(':username', $username);
+    $record->execute();
+    $result = $record->fetch(PDO::FETCH_ASSOC);
+
+    if (count($result) > 0 && password_verify($password, $result['password'])) {
+        $_SESSION['username'] = $username;
+        header('location:home.php');
+        exit;
+    } else {
+        echo '<br><div class="alert alert-danger" role="alert">';
+        echo 'Username or password incorrect';
+        echo '</div>';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,27 +58,6 @@ if (isset($_SESSION['username'])) {
         <input type="submit" class="btn btn-primary" value="Login" name="login">
         <a href="signup.php" class="btn btn-secondary">Sign up</a>
     </form>
-    <?php
-    if (isset($_POST['login'])) {
-        $username = trim($_POST['username']);
-        $password = trim($_POST['password']);
-
-        $record = $db->prepare('SELECT username, password FROM t_users WHERE username= :username');
-        $record->bindParam(':username', $username);
-        $record->execute();
-        $result = $record->fetch(PDO::FETCH_ASSOC);
-
-        if (count($result) > 0 && password_verify($password, $result['password'])) {
-            $_SESSION['username'] = $username;
-            header('location:home.php');
-            exit;
-        } else {
-            echo '<br><div class="alert alert-danger" role="alert">';
-            echo 'Username or password incorrect';
-            echo '</div>';
-        }
-    }
-    ?>
 </div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
