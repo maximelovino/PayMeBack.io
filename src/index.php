@@ -7,11 +7,10 @@ try {
 } catch (Exception $e) {
     die($e->getMessage());
 }
-/*
-if (isset($_SESSION['username'])){
-    header('location:game.php');
+
+if (isset($_SESSION['username'])) {
+    header('location:home.php');
 }
-*/
 ?>
 
 <!DOCTYPE html>
@@ -22,8 +21,7 @@ if (isset($_SESSION['username'])){
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
-          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
 <div class="container">
@@ -38,11 +36,29 @@ if (isset($_SESSION['username'])){
             <input type="password" class="form-control" id="password" name='password'>
         </div>
         <input type="submit" class="btn btn-primary" value="Login" name="login">
+        <a href="signup.php" class="btn btn-secondary">Sign up</a>
     </form>
-    <br>
-    <form action="signup.php" method="post">
-        <input type="submit" class="btn btn-secondary" value="Sign Up" name="goToSignup">
-    </form>
+    <?php
+    if (isset($_POST['login'])) {
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
+
+        $record = $db->prepare('SELECT username, password FROM t_users WHERE username= :username');
+        $record->bindParam(':username', $username);
+        $record->execute();
+        $result = $record->fetch(PDO::FETCH_ASSOC);
+
+        if (count($result) > 0 && password_verify($password, $result['password'])) {
+            $_SESSION['username'] = $username;
+            header('location:home.php');
+            exit;
+        } else {
+            echo '<br><div class="alert alert-danger" role="alert">';
+            echo 'Username or password incorrect';
+            echo '</div>';
+        }
+    }
+    ?>
 </div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -52,8 +68,6 @@ if (isset($_SESSION['username'])){
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
         integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
         crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
-        integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
-        crossorigin="anonymous"></script>
+<script src="js/bootstrap.min.js"></script>
 </body>
 </html>
