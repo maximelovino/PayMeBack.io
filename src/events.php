@@ -22,10 +22,10 @@ try {
 <body>
 <div class="container-fluid mt-5">
     <?php
-        include "navbar.html";
+    include "navbar.html";
     ?>
     <div class="container-fluid mt-5" id="content">
-        <p class="lead">Hello world from home</p>
+        <p class="lead">Hello this is the events page</p>
     </div>
 </div>
 
@@ -36,11 +36,10 @@ try {
         integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
         crossorigin="anonymous"></script>
 <script src="js/bootstrap.min.js"></script>
-
-
 <script type="text/javascript">
-    $("#homeLink").toggleClass("btn-outline-primary");
-    $("#homeLink").toggleClass("btn-primary");
+    $("#eventsLink").toggleClass("btn-outline-dark");
+    $("#eventsLink").toggleClass("btn-dark");
 </script>
-
 </body>
+
+

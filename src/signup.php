@@ -26,7 +26,7 @@ if (isset($_SESSION['username'])){
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
-<div class="container">
+<div class="container-fluid mt-5">
     <h2>Sign up for using this app</h2>
     <form action="" method="post">
         <div class="form-group">
