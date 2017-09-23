@@ -6,6 +6,9 @@ try {
 } catch (Exception $e) {
     die($e->getMessage());
 }
+if (!isset($_SESSION['username'])) {
+    header("location: index.php");
+}
 ?>
 
 

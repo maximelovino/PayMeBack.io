@@ -7,11 +7,6 @@ try {
 } catch (Exception $e) {
     die($e->getMessage());
 }
-/*
-if (isset($_SESSION['username'])){
-    header('location:game.php');
-}
-*/
 ?>
 
 
@@ -31,23 +26,23 @@ if (isset($_SESSION['username'])){
     <form action="" method="post">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" name='username'>
+            <input type="text" class="form-control" id="username" name='username' required>
         </div>
         <div class="form-group">
             <label for="firstName">First Name</label>
-            <input type="text" class="form-control" id="firstName" name='firstName'>
+            <input type="text" class="form-control" id="firstName" name='firstName' required>
         </div>
         <div class="form-group">
             <label for="lastName">Last Name</label>
-            <input type="text" class="form-control" id="lastName" name='lastName'>
+            <input type="text" class="form-control" id="lastName" name='lastName' required>
         </div>
         <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" name='email'>
+            <input type="email" class="form-control" id="email" name='email' required>
         </div>
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" name='password'>
+            <input type="password" class="form-control" id="password" name='password' required>
         </div>
         <input type="submit" class="btn btn-primary" value="Sign Up" name="signup">
     </form>

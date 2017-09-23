@@ -1,10 +1,16 @@
 <?php
 session_start();
 
+error_reporting(E_ALL);
+ini_set('display_errors', 'on');
+
 try {
     $db = new PDO('mysql:host=localhost;dbname=petits_comptes_entre_amis;charset=utf8', 'php', '3eXLjcN5PQXv39Vd');
 } catch (Exception $e) {
     die($e->getMessage());
+}
+if (!isset($_SESSION['username'])) {
+    header("location: index.php");
 }
 ?>
 
@@ -24,8 +30,86 @@ try {
     <?php
     include "navbar.html";
     ?>
-    <div class="container-fluid mt-5" id="content">
-        <p class="lead">Hello this is the events page</p>
+    <div class="row mt-5">
+        <div class="col-auto" id="content-left">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createEventModal">
+                Create event
+            </button>
+            <div class="modal fade" id="createEventModal" tabindex="-1" role="dialog" aria-labelledby="createEventModal"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Create new event</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="createEvent.php" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="eventTitle">Title of the event</label>
+                                    <input type="text" class="form-control" id="eventTitle" name='eventTitle' required>
+                                    <small id="titleHelp" class="form-text text-muted">The title your event must be less than 256 characters long.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventDescription">Description of the event</label>
+                                    <textarea class="form-control" name="eventDescription" id="eventDescription"
+                                              rows="4"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventCurrency">Currency for the event</label>
+                                    <select name="eventCurrency" id="eventCurrency" class="form-control" required>
+                                        <?php
+                                        $currencies = $db->query("SELECT currency_code FROM t_currencies ORDER BY currency_code");
+
+                                        foreach ($currencies as $currency) {
+                                            echo '<option>' . $currency['currency_code'] . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventUsers">Who are you going with?</label>
+                                    <select multiple name="eventUsers[]" id="eventUsers" class="form-control" required>
+                                        <?php
+                                        $usersQuery = $db->prepare("SELECT username FROM t_users where username != :username ORDER BY username");
+                                        $usersQuery->bindParam(':username',$_SESSION['username']);
+                                        $usersQuery->execute();
+                                        $users = $usersQuery->fetchAll();
+
+                                        foreach ($users as $user) {
+                                            echo '<option>' . $user['username'] . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" id="newEvent" name="newEvent">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col" id="content-rigth">
+            <p class="h2">My events</p>
+            <?php
+            $eventsQuery = $db->prepare("SELECT * from t_group_membership JOIN t_events on group_id WHERE username=:username");
+            $eventsQuery->bindParam(":username", $_SESSION['username']);
+            $eventsQuery->execute();
+            $events = $eventsQuery->fetchAll(PDO::FETCH_ASSOC);
+            if (count($events) == 0) {
+                echo '<p class="lead">You don\'t have any events</p>';
+            } else {
+                foreach ($events as $event) {
+                    echo '<p class="lead">' . $event['name'] . '</p>';
+                }
+            }
+            ?>
+        </div>
     </div>
 </div>
 

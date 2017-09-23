@@ -49,11 +49,11 @@ if (isset($_POST['login'])) {
     <form action="" method="post">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" name='username'>
+            <input type="text" class="form-control" id="username" name='username' required>
         </div>
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" name='password'>
+            <input type="password" class="form-control" id="password" name='password' required>
         </div>
         <input type="submit" class="btn btn-primary" value="Login" name="login">
         <a href="signup.php" class="btn btn-secondary">Sign up</a>
