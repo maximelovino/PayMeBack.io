@@ -3,7 +3,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create new event</h5>
+                <h5 class="modal-title">Create new event</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -13,7 +13,7 @@
                     <div class="form-group">
                         <label for="eventTitle">Title of the event</label>
                         <input type="text" class="form-control" id="eventTitle" name='eventTitle' required>
-                        <small id="titleHelp" class="form-text text-muted">The title your event must be less
+                        <small id="titleHelp" class="form-text text-muted">The title of your event must be less
                             than 256 characters long.
                         </small>
                     </div>
