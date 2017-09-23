@@ -23,11 +23,11 @@ if (!isset($_SESSION['username'])) {
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
-<div class="container-fluid mt-5">
+<div class="container mt-5">
     <?php
         include "navbar.html";
     ?>
-    <div class="container-fluid mt-5" id="content">
+    <div class="container mt-5" id="content">
         <p class="lead">Hello world from home</p>
     </div>
 </div>

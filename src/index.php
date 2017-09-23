@@ -44,7 +44,7 @@ if (isset($_POST['login'])) {
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
-<div class="container-fluid mt-5">
+<div class="container mt-5">
     <h1>Welcome to Petits Comptes Entre Amis</h1>
     <form action="" method="post">
         <div class="form-group">
