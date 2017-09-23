@@ -50,7 +50,9 @@ if (!isset($_SESSION['username'])) {
                                 <div class="form-group">
                                     <label for="eventTitle">Title of the event</label>
                                     <input type="text" class="form-control" id="eventTitle" name='eventTitle' required>
-                                    <small id="titleHelp" class="form-text text-muted">The title your event must be less than 256 characters long.</small>
+                                    <small id="titleHelp" class="form-text text-muted">The title your event must be less
+                                        than 256 characters long.
+                                    </small>
                                 </div>
                                 <div class="form-group">
                                     <label for="eventDescription">Description of the event</label>
@@ -74,7 +76,7 @@ if (!isset($_SESSION['username'])) {
                                     <select multiple name="eventUsers[]" id="eventUsers" class="form-control" required>
                                         <?php
                                         $usersQuery = $db->prepare("SELECT username FROM t_users where username != :username ORDER BY username");
-                                        $usersQuery->bindParam(':username',$_SESSION['username']);
+                                        $usersQuery->bindParam(':username', $_SESSION['username']);
                                         $usersQuery->execute();
                                         $users = $usersQuery->fetchAll();
 
@@ -87,31 +89,37 @@ if (!isset($_SESSION['username'])) {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" id="newEvent" name="newEvent">Create</button>
+                                <button type="submit" class="btn btn-primary" id="newEvent" name="newEvent">Create
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col" id="content-rigth">
+        <div class="col" id="content-right">
             <p class="h2">My events</p>
             <?php
-            $eventsQuery = $db->prepare("SELECT * from t_group_membership JOIN t_events on group_id WHERE username=:username");
+            $eventsQuery = $db->prepare("SELECT * from t_group_membership JOIN t_events on t_events.group_id = t_group_membership.group_id HAVING username=:username");
             $eventsQuery->bindParam(":username", $_SESSION['username']);
             $eventsQuery->execute();
             $events = $eventsQuery->fetchAll(PDO::FETCH_ASSOC);
+            echo '<div class="mt-3">';
             if (count($events) == 0) {
                 echo '<p class="lead">You don\'t have any events</p>';
             } else {
+                echo '<ul class="list-group">';
                 foreach ($events as $event) {
-                    echo '<p class="lead">' . $event['name'] . '</p>';
+                    echo '<li class="list-group-item">' . $event['event_name'] . '</li>';
                 }
+                echo '</ul>';
             }
+            echo '</div>';
             ?>
         </div>
     </div>
 </div>
+
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -123,6 +131,12 @@ if (!isset($_SESSION['username'])) {
 <script type="text/javascript">
     $("#eventsLink").toggleClass("btn-outline-dark");
     $("#eventsLink").toggleClass("btn-dark");
+</script>
+
+<script type="text/javascript">
+    $('.list-group-item').hover(function () {
+        $(this).toggleClass('active');
+    })
 </script>
 </body>
 
