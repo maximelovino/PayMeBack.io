@@ -42,7 +42,6 @@ if (isset($_POST['newEvent'])) {
     $eventInsertionQuery->bindParam(':group',$idGroup);
     $eventInsertionQuery->bindParam(':currency',$currency);
     $eventInsertionQuery->execute();
-
 }
 
 header('location:events.php');

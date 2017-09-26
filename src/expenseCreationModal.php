@@ -39,20 +39,21 @@
                     <!--TODO check this, because it could cause a problem-->
                     <div class="form-group">
                         <label for="expenseDate">Date of the expense</label>
-                        <input type="date" value="<?php echo date('Y-m-d') ?>" class="form-control" id="expenseDate"
-                               name="expenseDate">
+                        <input type="text" value="<?php echo date('Y-m-d') ?>" class="form-control" id="expenseDate"
+                               name="expenseDate" required>
+                        <small id="dateFormatHelp" class="form-text text-muted">Use format YYYY-mm-dd for dates</small>
                     </div>
                     <div class="form-group">
                         <label for="expenseMaker">Who paid for it?</label>
                         <?php
                         echo '<select class="form-control" id="expenseMaker" name="expenseMaker">';
                         foreach ($people as $person) {
-                            if ($person['username'] == $_SESSION['username']){
+                            if ($person['username'] == $_SESSION['username']) {
                                 echo '<option selected="selected">';
-                            }else{
+                            } else {
                                 echo '<option>';
                             }
-                            echo $person['username'].'</option>';
+                            echo $person['username'] . '</option>';
                         }
                         echo '</select>';
                         ?>
@@ -61,14 +62,13 @@
                         <label for="expensePeople">People involved in the expense</label>
                         <?php
                         foreach ($people as $person) {
-                            if ($person['username'] != $_SESSION['username']) {
-                                echo '<div class="form-check">';
-                                echo '<label class="form-check-label">';
-                                echo '<input class="form-check-input" type="checkbox" name=check-' . $person['username'] . ' checked>';
-                                echo '&nbsp' . $person['username'];
-                                echo '</label>';
-                                echo '</div>';
-                            }
+                            echo '<div class="form-check">';
+                            echo '<label class="form-check-label">';
+                            echo '<input class="form-check-input" type="checkbox" name=check-' . $person['username'] . ' checked>';
+                            echo '&nbsp' . $person['username'];
+                            echo '</label>';
+                            echo '</div>';
+
                         }
                         ?>
                     </div>

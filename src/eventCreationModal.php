@@ -38,16 +38,25 @@
                         <label for="eventUsers">Who are you going with?</label>
                         <select multiple name="eventUsers[]" id="eventUsers" class="form-control" required>
                             <?php
-                            $usersQuery = $db->prepare("SELECT username FROM t_users where username !=:username ORDER BY username");
+                            $usersQuery = $db->prepare("SELECT * FROM t_users where username !=:username ORDER BY username");
                             $usersQuery->bindParam(':username', $_SESSION['username']);
                             $usersQuery->execute();
                             $users = $usersQuery->fetchAll();
 
                             foreach ($users as $user) {
-                                echo '<option>' . $user['username'] . '</option>';
+                                echo '<option value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
                             }
                             ?>
                         </select>
+
+                        <script type="text/javascript">
+                            $('#createEventModal').on('shown.bs.modal', function () {
+                                $('#eventUsers').select2({
+                                    placeholder: 'Select users for your event...',
+                                    dropdownParent: $('#createEventModal'),
+                                });
+                            })
+                        </script>
                     </div>
                 </div>
                 <div class="modal-footer">
