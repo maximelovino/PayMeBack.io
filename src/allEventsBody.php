@@ -8,7 +8,7 @@
     <div class="col" id="content-right">
         <p class="h2">My events</p>
         <?php
-        $eventsQuery = $db->prepare("SELECT * from t_group_membership JOIN t_events on t_events.group_id = t_group_membership.group_id HAVING username=:username");
+        $eventsQuery = $db->prepare("SELECT * from t_group_membership JOIN t_events on t_events.event_id = t_group_membership.event_id HAVING username=:username");
         $eventsQuery->bindParam(":username", $_SESSION['username']);
         $eventsQuery->execute();
         $events = $eventsQuery->fetchAll(PDO::FETCH_ASSOC);

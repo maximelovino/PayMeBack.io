@@ -9,8 +9,8 @@
                 </button>
             </div>
             <?php
-            $peopleQuery = $db->prepare('SELECT username from t_group_membership WHERE group_id=:id');
-            $peopleQuery->bindParam(':id', $event['group_id']);
+            $peopleQuery = $db->prepare('SELECT username from t_group_membership WHERE event_id=:id');
+            $peopleQuery->bindParam(':id', $event['event_id']);
             $peopleQuery->execute();
             $people = $peopleQuery->fetchAll(PDO::FETCH_ASSOC);
             ?>

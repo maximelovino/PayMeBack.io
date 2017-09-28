@@ -23,25 +23,21 @@ if (isset($_POST['newEvent'])) {
     //TODO validation
     //TODO wrap in transaction and roll back if problem
     array_push($users,$_SESSION['username']);
-    $query = $db->prepare('INSERT into t_groups VALUES (DEFAULT)');
-    $query->execute();
-    $idGroup = $db->lastInsertId();
-
-
-    foreach ($users as $user) {
-        $insertionQuery = $db->prepare('INSERT into t_group_membership VALUES (:username,:id)');
-        $insertionQuery->bindParam(':username',$user);
-        $insertionQuery->bindParam(':id',$idGroup);
-        $insertionQuery->execute();
-    }
-
-    $eventInsertionSQL = 'INSERT into t_events VALUES (DEFAULT,:name,:desc,:group,:currency)';
+    $eventInsertionSQL = 'INSERT into t_events VALUES (DEFAULT,:name,:desc,:currency)';
     $eventInsertionQuery = $db->prepare($eventInsertionSQL);
     $eventInsertionQuery->bindParam(':name',$title);
     $eventInsertionQuery->bindParam(':desc',$description);
-    $eventInsertionQuery->bindParam(':group',$idGroup);
     $eventInsertionQuery->bindParam(':currency',$currency);
     $eventInsertionQuery->execute();
+    $idEvent = $db->lastInsertId();
+
+
+    foreach ($users as $user) {
+        $insertionQuery = $db->prepare('INSERT into t_group_membership VALUES (:username,:id, DEFAULT)');
+        $insertionQuery->bindParam(':username',$user);
+        $insertionQuery->bindParam(':id',$idEvent);
+        $insertionQuery->execute();
+    }
 }
 
 header('location:events.php');
