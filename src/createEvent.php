@@ -4,40 +4,22 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 
-try {
-    $db = new PDO('mysql:host=localhost;dbname=petits_comptes_entre_amis;charset=utf8', 'php', '3eXLjcN5PQXv39Vd');
-} catch (Exception $e) {
-    die($e->getMessage());
-}
+require_once "DBConnection.php";
+
 if (!isset($_SESSION['username'])) {
-    header("location: index.php");
+	header("location: index.php");
 }
 
 
 if (isset($_POST['newEvent'])) {
-    $title = $_POST['eventTitle'];
-    $description = $_POST['eventDescription'];
-    $currency = $_POST['eventCurrency'];
-    $users = $_POST['eventUsers'];
+	$title = trim($_POST['eventTitle']);
+	$description = trim($_POST['eventDescription']);
+	$users = trim($_POST['eventUsers']);
+	array_push($users, $_SESSION['username']);
+	$currency = trim($_POST['eventCurrency']);
+	//TODO validation and trim
 
-    //TODO validation
-    //TODO wrap in transaction and roll back if problem
-    array_push($users,$_SESSION['username']);
-    $eventInsertionSQL = 'INSERT into t_events VALUES (DEFAULT,:name,:desc,:currency)';
-    $eventInsertionQuery = $db->prepare($eventInsertionSQL);
-    $eventInsertionQuery->bindParam(':name',$title);
-    $eventInsertionQuery->bindParam(':desc',$description);
-    $eventInsertionQuery->bindParam(':currency',$currency);
-    $eventInsertionQuery->execute();
-    $idEvent = $db->lastInsertId();
-
-
-    foreach ($users as $user) {
-        $insertionQuery = $db->prepare('INSERT into t_group_membership VALUES (:username,:id, DEFAULT)');
-        $insertionQuery->bindParam(':username',$user);
-        $insertionQuery->bindParam(':id',$idEvent);
-        $insertionQuery->execute();
-    }
+	DBConnection::getInstance()->insertNewEvent($title, $description, $users, $currency);
 }
 
 header('location:events.php');

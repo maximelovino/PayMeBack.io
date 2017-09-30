@@ -2,11 +2,7 @@
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
-try {
-    $db = new PDO('mysql:host=localhost;dbname=petits_comptes_entre_amis;charset=utf8', 'php', '3eXLjcN5PQXv39Vd');
-} catch (Exception $e) {
-    die($e->getMessage());
-}
+require_once "DBConnection.php";
 
 if (isset($_SESSION['username'])) {
     header('location:home.php');
@@ -16,12 +12,9 @@ if (isset($_POST['login'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    $record = $db->prepare('SELECT username, password FROM t_users WHERE username= :username');
-    $record->bindParam(':username', $username);
-    $record->execute();
-    $result = $record->fetch(PDO::FETCH_ASSOC);
+	$login = DBConnection::getInstance()->loginOK($username, $password);
 
-    if (count($result) > 0 && password_verify($password, $result['password'])) {
+	if ($login) {
         $_SESSION['username'] = $username;
         header('location:home.php');
         exit;

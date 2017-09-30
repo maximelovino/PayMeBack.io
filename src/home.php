@@ -1,11 +1,5 @@
 <?php
 session_start();
-
-try {
-    $db = new PDO('mysql:host=localhost;dbname=petits_comptes_entre_amis;charset=utf8', 'php', '3eXLjcN5PQXv39Vd');
-} catch (Exception $e) {
-    die($e->getMessage());
-}
 if (!isset($_SESSION['username'])) {
     header("location: index.php");
 }

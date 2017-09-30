@@ -25,28 +25,25 @@
                     <div class="form-group">
                         <label for="eventCurrency">Currency for the event</label>
                         <select name="eventCurrency" id="eventCurrency" class="form-control" required>
-                            <?php
-                            $currencies = $db->query("SELECT currency_code FROM t_currencies ORDER BY currency_code");
+							<?php
+							$currencies = DBConnection::getInstance()->getAllCurrencies();
 
-                            foreach ($currencies as $currency) {
-                                echo '<option>' . $currency['currency_code'] . '</option>';
-                            }
-                            ?>
+							foreach ($currencies as $currency) {
+								echo '<option>' . $currency['currency_code'] . '</option>';
+							}
+							?>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="eventUsers">Who are you going with?</label>
                         <select multiple name="eventUsers[]" id="eventUsers" class="form-control" required>
-                            <?php
-                            $usersQuery = $db->prepare("SELECT * FROM t_users where username !=:username ORDER BY username");
-                            $usersQuery->bindParam(':username', $_SESSION['username']);
-                            $usersQuery->execute();
-                            $users = $usersQuery->fetchAll();
-
-                            foreach ($users as $user) {
-                                echo '<option value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
-                            }
-                            ?>
+							<?php
+							$users = DBConnection::getInstance()->getAllUsers();
+							foreach ($users as $user) {
+								if ($user['username'] != $_SESSION['username'])
+									echo '<option value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
+							}
+							?>
                         </select>
 
                         <script type="text/javascript">
@@ -55,8 +52,31 @@
                                     placeholder: 'Select users for your event...',
                                     dropdownParent: $('#createEventModal'),
                                 });
-                            })
+                            });
+                            $('#eventUsers').change(function () {
+                                //TODO use this to check selection of options
+                                $("#eventUsers option:selected").each(function () {
+                                    console.log($(this).text());
+                                })
+                            }).trigger("change");
                         </script>
+                    </div>
+					<?php
+					//TODO always include organiser
+					//TODO find a better name for the post param
+					//TODO add weights line programmatically using jquery when adding a user from the multiple select
+					?>
+                    <div class="form-group">
+                        <label for="">Weights</label>
+                        <div class="row">
+                            <div class="col">
+                                <label for="<?php echo $_SESSION['username']; ?>"><?php echo $_SESSION['username']; ?></label>
+                            </div>
+                            <div class="col">
+                                <input type="number" value="1" name="<?php echo $_SESSION['username']; ?>"
+                                       id="<?php echo $_SESSION['username']; ?>">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

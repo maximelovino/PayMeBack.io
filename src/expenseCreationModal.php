@@ -9,10 +9,7 @@
                 </button>
             </div>
             <?php
-            $peopleQuery = $db->prepare('SELECT username from t_group_membership WHERE event_id=:id');
-            $peopleQuery->bindParam(':id', $event['event_id']);
-            $peopleQuery->execute();
-            $people = $peopleQuery->fetchAll(PDO::FETCH_ASSOC);
+			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
             ?>
             <form action="createExpense.php" method="post">
                 <div class="modal-body">
@@ -68,7 +65,6 @@
                             echo '&nbsp' . $person['username'];
                             echo '</label>';
                             echo '</div>';
-
                         }
                         ?>
                     </div>

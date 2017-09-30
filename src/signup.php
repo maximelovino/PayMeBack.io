@@ -2,11 +2,7 @@
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
-try {
-    $db = new PDO('mysql:host=localhost;dbname=petits_comptes_entre_amis;charset=utf8', 'php', '3eXLjcN5PQXv39Vd');
-} catch (Exception $e) {
-    die($e->getMessage());
-}
+require_once "DBConnection.php";
 ?>
 
 
@@ -58,23 +54,14 @@ try {
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         if (!($username == '' || $password == '')) {
-            $records = $db->prepare('SELECT username FROM t_users WHERE username= :uname');
-            $records->bindParam(':uname', $username);
-            $records->execute();
-            $result = $records->fetchAll();
+			$result = DBConnection::getInstance()->getUsersMatching($username);
             if (count($result) > 0) {
                 //username already taken
                 echo '<br><div class="alert alert-danger" role="alert">';
                 echo 'Username ' . $username . ' already taken';
                 echo '</div>';
             } else {
-                $insertion = $db->prepare('INSERT INTO t_users VALUES (:username,:first_name,:last_name,:email,:password)');
-                $insertion->bindParam(':username', $username);
-                $insertion->bindParam(':first_name', $firstName);
-                $insertion->bindParam(':last_name', $lastName);
-                $insertion->bindParam(':email', $email);
-                $insertion->bindParam(':password', $hash);
-                $insertion->execute();
+				DBConnection::getInstance()->insertNewUser($username, $firstName, $lastName, $email, $hash);
                 //TODO check answer?
                 echo '<br><div class="alert alert-success" role="alert">';
                 echo 'User ' . $username . ' added';
