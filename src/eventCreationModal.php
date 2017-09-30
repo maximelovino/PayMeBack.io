@@ -45,40 +45,36 @@
 							}
 							?>
                         </select>
-
-                        <script type="text/javascript">
-                            $('#createEventModal').on('shown.bs.modal', function () {
-                                $('#eventUsers').select2({
-                                    placeholder: 'Select users for your event...',
-                                    dropdownParent: $('#createEventModal'),
-                                });
-                            });
-                            $('#eventUsers').change(function () {
-                                //TODO use this to check selection of options
-                                $("#eventUsers option:selected").each(function () {
-                                    console.log($(this).text());
-                                })
-                            }).trigger("change");
-                        </script>
                     </div>
 					<?php
-					//TODO always include organiser
-					//TODO find a better name for the post param
-					//TODO add weights line programmatically using jquery when adding a user from the multiple select
 					?>
-                    <div class="form-group">
-                        <label for="">Weights</label>
-                        <div class="row">
-                            <div class="col">
-                                <label for="<?php echo $_SESSION['username']; ?>"><?php echo $_SESSION['username']; ?></label>
-                            </div>
-                            <div class="col">
-                                <input type="number" value="1" name="<?php echo $_SESSION['username']; ?>"
-                                       id="<?php echo $_SESSION['username']; ?>">
-                            </div>
-                        </div>
-                    </div>
+                    <div class="form-group" id="weightsDiv"></div>
                 </div>
+                <script type="text/javascript">
+
+                    function createDivForUsername(username) {
+                        return `<div class="row"><div class="col"><label for="${username}">${username}</label></div><div class="col"><input type="number" value="1" name="weight-${username}" id="weight-${username}"></div></div>`;
+                    }
+
+                    function weightsDisplay() {
+                        $("#weightsDiv").empty();
+                        $("#weightsDiv").append("<label>Weights</label>");
+                        let username = "<?php echo $_SESSION['username'];?>";
+                        $("#weightsDiv").append(createDivForUsername(username));
+
+                        $("#eventUsers option:selected").each(function () {
+                            $("#weightsDiv").append(createDivForUsername($(this).val()));
+                        })
+                    }
+
+                    $('#createEventModal').on('shown.bs.modal', function () {
+                        $('#eventUsers').select2({
+                            placeholder: 'Select users for your event...',
+                            dropdownParent: $('#createEventModal'),
+                        });
+                    });
+                    $('#eventUsers').change(weightsDisplay).trigger("change");
+                </script>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary" id="newEvent" name="newEvent">Create

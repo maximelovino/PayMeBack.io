@@ -14,6 +14,11 @@
             <form action="createExpense.php" method="post">
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="eventID">Event ID</label>
+                        <input type="text" class="form-control" id="event_id" name="event_id"
+                               value="<?php echo $event['event_id']; ?>" readonly>
+                    </div>
+                    <div class="form-group">
                         <label for="expenseTitle">Title of the expense</label>
                         <input type="text" class="form-control" id="expenseTitle" name='expenseTitle' required>
                         <small id="titleHelp" class="form-text text-muted">The title of your expense must be less

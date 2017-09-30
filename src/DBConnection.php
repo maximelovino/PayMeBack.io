@@ -41,7 +41,7 @@ class DBConnection {
 		return $this->connection->query("SELECT * FROM t_currencies ORDER BY currency_code", PDO::FETCH_ASSOC);
 	}
 
-	public function insertNewEvent($title, $description, $users, $currency) {
+	public function insertNewEvent($title, $description, $users, $currency, $weights) {
 
 		//TODO Check that it went through
 		//TODO wrap in transaction
@@ -56,11 +56,33 @@ class DBConnection {
 
 
 		foreach ($users as $user) {
-			$insertionQuery = $this->connection->prepare('INSERT INTO t_group_membership VALUES (:username,:id, DEFAULT)');
+			$insertionQuery = $this->connection->prepare('INSERT INTO t_group_membership VALUES (:username,:id, :weight)');
 			$insertionQuery->bindParam(':username', $user);
 			$insertionQuery->bindParam(':id', $idEvent);
+			$insertionQuery->bindParam(':weight', $weights[$user]);
 			$insertionQuery->execute();
 		}
+	}
+
+	public function insertExpense($title, $description, $eventID, $amount, $date, $buyer, $involvedUsers) {
+		//TODO transaction
+		$expenseInsertionQuery = $this->connection->prepare("INSERT INTO t_expenses VALUES (DEFAULT , :title, :desc, :amount, :date, :buyer, :event)");
+		$expenseInsertionQuery->bindParam(':title', $title);
+		$expenseInsertionQuery->bindParam(':desc', $description);
+		$expenseInsertionQuery->bindParam(':amount', $amount);
+		$expenseInsertionQuery->bindParam(':date', $date);
+		$expenseInsertionQuery->bindParam(':buyer', $buyer);
+		$expenseInsertionQuery->bindParam(':event', $eventID);
+		$expenseInsertionQuery->execute();
+		$idExpense = $this->connection->lastInsertId();
+
+		foreach ($involvedUsers as $user) {
+			$insertionQuery = $this->connection->prepare("INSERT INTO t_expense_membership VALUES (:id,:name)");
+			$insertionQuery->bindParam(':id', $idExpense);
+			$insertionQuery->bindParam(':name', $user);
+			$insertionQuery->execute();
+		}
+
 	}
 
 	public function selectSingleEventByID($id) {
@@ -78,13 +100,6 @@ class DBConnection {
 		return $peopleQuery->fetchAll(PDO::FETCH_ASSOC);
 	}
 
-	/**
-	 * @param $username
-	 * @param $first_name
-	 * @param $last_name
-	 * @param $email
-	 * @param $password_hash
-	 */
 	public function insertNewUser($username, $first_name, $last_name, $email, $password_hash) {
 		$insertion = $this->connection->prepare('INSERT INTO t_users VALUES (:username,:first_name,:last_name,:email,:password)');
 		$insertion->bindParam(':username', $username);
