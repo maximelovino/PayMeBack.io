@@ -146,4 +146,54 @@ class DBConnection {
 		}
 		return $balance;
 	}
+
+	public function getBalanceForEvent($eventID) {
+		$expenses = $this->getAllExpensesForEvent($eventID);
+		$balance = array();
+		foreach ($expenses as $expense) {
+			$data = $this->getExpensesByUserForExpense($expense['transaction_id']);
+			$buyer = $expense['buyer_username'];
+
+			foreach ($data as $user => $amount) {
+				if (!isset($balance[$user])) {
+					$balance[$user] = array();
+				}
+				if (!isset($balance[$buyer])) {
+					$balance[$buyer] = array();
+				}
+
+				if (!isset($balance[$user][$buyer])) {
+					$balance[$user][$buyer] = 0;
+				}
+
+				if (!isset($balance[$buyer][$user])) {
+					$balance[$buyer][$user] = 0;
+				}
+				$balance[$buyer][$user] += $amount;
+				$balance[$user][$buyer] -= $amount;
+			}
+		}
+		return $balance;
+	}
+
+	public function getBalanceForEachEventForUser($username) {
+		$events = $this->getAllEventsForUser($username);
+		$balance = array();
+		foreach ($events as $event) {
+			$balance[$event['event_id']] = 0;
+			$totalBalance = $this->getBalanceForEvent($event['event_id']);
+			if (isset($totalBalance[$username])) {
+				foreach ($totalBalance[$username] as $subBalance) {
+					$balance[$event['event_id']] += $subBalance;
+				}
+			}
+		}
+		return $balance;
+	}
+
+	public function deleteEventByID($id) {
+		$query = $this->connection->prepare('DELETE FROM t_events WHERE event_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+	}
 }

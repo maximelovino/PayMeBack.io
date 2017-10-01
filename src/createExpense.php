@@ -20,7 +20,7 @@ if (isset($_POST['newExpense'])) {
 	$amount = floatval($_POST['expenseAmount']);
 	$makerUsername = $_POST['expenseMaker'];
 	$usersParticipating = array();
-
+	//TODO round amount to correct rounding for currency
 	$allUsers = DBConnection::getInstance()->selectUsersForEvent($event_id);
 
 	foreach ($allUsers as $user) {

@@ -5,7 +5,7 @@ create table t_currencies
 	rounding_multiple double not null,
 	full_name varchar(256) not null,
 	constraint t_currencies_currency_code_uindex
-		unique (currency_code)
+  UNIQUE (currency_code)
 )
 ;
 
@@ -17,9 +17,9 @@ create table t_events
 	event_description text null,
 	currency_code varchar(3) not null,
 	constraint t_events_event_id_uindex
-		unique (event_id),
+  UNIQUE (event_id),
 	constraint t_events_t_currencies_currency_code_fk
-		foreign key (currency_code) references t_currencies (currency_code)
+  FOREIGN KEY (currency_code) REFERENCES t_currencies (currency_code)
 )
 ;
 
@@ -29,14 +29,14 @@ create index t_events_t_currencies_currency_code_fk
 
 create table t_expense_membership
 (
-	transaction_id int not null,
-	username varchar(256) not null
-		primary key
+  transaction_id int          not null,
+  username       VARCHAR(256) NOT NULL,
+  PRIMARY KEY (transaction_id, username)
 )
 ;
 
-create index t_expense_membership_t_expenses_transaction_id_fk
-	on t_expense_membership (transaction_id)
+CREATE INDEX t_expense_membership_t_users_username_fk
+  ON t_expense_membership (username)
 ;
 
 create table t_expenses
@@ -50,9 +50,11 @@ create table t_expenses
 	buyer_username varchar(256) not null,
 	event_id int not null,
 	constraint t_expenses_transaction_id_uindex
-		unique (transaction_id),
+  UNIQUE (transaction_id),
 	constraint t_expenses_t_events_event_id_fk
-		foreign key (event_id) references t_events (event_id)
+  FOREIGN KEY (event_id) REFERENCES t_events (event_id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 )
 ;
 
@@ -66,7 +68,9 @@ create index t_expenses_t_users_username_fk
 
 alter table t_expense_membership
 	add constraint t_expense_membership_t_expenses_transaction_id_fk
-		foreign key (transaction_id) references t_expenses (transaction_id)
+FOREIGN KEY (transaction_id) REFERENCES t_expenses (transaction_id)
+  ON UPDATE CASCADE
+  ON DELETE CASCADE
 ;
 
 create table t_group_membership
@@ -76,7 +80,9 @@ create table t_group_membership
 	coefficient int default '1' not null,
 	primary key (username, event_id),
 	constraint t_group_membership_t_events_event_id_fk
-		foreign key (event_id) references t_events (event_id)
+  FOREIGN KEY (event_id) REFERENCES t_events (event_id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 )
 ;
 
@@ -93,22 +99,37 @@ create table t_users
 	email varchar(256) null,
 	password varchar(256) null,
 	constraint t_users_username_uindex
-		unique (username)
+  UNIQUE (username)
 )
 ;
 
 alter table t_expense_membership
 	add constraint t_expense_membership_t_users_username_fk
-		foreign key (username) references t_users (username)
+FOREIGN KEY (username) REFERENCES t_users (username)
+  ON UPDATE CASCADE
 ;
 
 alter table t_expenses
 	add constraint t_expenses_t_users_username_fk
-		foreign key (buyer_username) references t_users (username)
+FOREIGN KEY (buyer_username) REFERENCES t_users (username)
+  ON UPDATE CASCADE
 ;
 
 alter table t_group_membership
 	add constraint t_group_membership_t_users_username_fk
-		foreign key (username) references t_users (username)
-;
+FOREIGN KEY (username) REFERENCES t_users (username)
+  ON UPDATE CASCADE;
+
+CREATE VIEW t_coeffsbytransaction AS
+  SELECT
+    `petits_comptes_entre_amis`.`t_expenses`.`transaction_id`           AS `transaction_id`,
+    sum(`petits_comptes_entre_amis`.`t_group_membership`.`coefficient`) AS `sum`
+  FROM ((`petits_comptes_entre_amis`.`t_expenses`
+    JOIN `petits_comptes_entre_amis`.`t_expense_membership`
+      ON ((`petits_comptes_entre_amis`.`t_expenses`.`transaction_id` =
+           `petits_comptes_entre_amis`.`t_expense_membership`.`transaction_id`))) JOIN
+    `petits_comptes_entre_amis`.`t_group_membership` ON ((`petits_comptes_entre_amis`.`t_group_membership`.`username` =
+                                                          `petits_comptes_entre_amis`.`t_expense_membership`.`username`)))
+  WHERE (`petits_comptes_entre_amis`.`t_group_membership`.`event_id` = 17)
+  GROUP BY `petits_comptes_entre_amis`.`t_expenses`.`transaction_id`;
 

@@ -13,7 +13,7 @@
             ?>
             <form action="createExpense.php" method="post">
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label for="eventID">Event ID</label>
                         <input type="text" class="form-control" id="event_id" name="event_id"
                                value="<?php echo $event['event_id']; ?>" readonly>
