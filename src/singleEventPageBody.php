@@ -16,10 +16,41 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
     <div class="col" id="content-right">
         <h1><?php echo $event['event_name']; ?></h1>
         <p><?php echo $event['event_description']; ?></p>
-
-        <?php
-        
-        //TODO have a list of the last 3 expenses and a button to expand all using jquery. Then we can open each expense in its own modal, and display the total in big, and what everyone owes according to coeff
-        ?>
+        <h2>Latest expenses</h2>
+		<?php
+		$expenses = DBConnection::getInstance()->getAllExpensesForEvent($event['event_id']);
+		echo '<ul class="list-group">';
+		$count = 0;
+		foreach ($expenses as $expense) {
+			if ($count > 2) {
+				echo '<button class="list-group-item list-group-item-action expense removable" style="display: none"><div class="row"><div class="col">' . $expense['title'] . '</div><div class="col-auto">' . $expense['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
+			} else {
+				echo '<button class="list-group-item list-group-item-action expense"><div class="row"><div class="col">' . $expense['title'] . '</div><div class="col-auto">' . $expense['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
+			}
+			$count++;
+		}
+		echo '</ul>';
+		if ($count > 3) {
+			echo '<a href="#" id="showMoreLink">Show more expenses</a>';
+		} elseif ($count == 0) {
+			echo '<p>No expenses added to this event yet</p>';
+		}
+		echo '<h2>Balance</h2>';
+		foreach ($expenses as $expense) {
+			$balances = DBConnection::getInstance()->getExpensesByUserForExpense($expense['transaction_id']);
+			echo '<br>';
+			print_r($balances);
+			echo '<br>';
+		}
+		?>
+        <script type="text/javascript">
+            //TODO this
+            let hidden = true;
+            $('#showMoreLink').click(function () {
+                $(".removable").toggle();
+                hidden = !hidden;
+                $('#showMoreLink').html(hidden ? "Show more expenses" : "Show less expenses");
+            })
+        </script>
     </div>
 </div>

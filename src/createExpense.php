@@ -24,7 +24,7 @@ if (isset($_POST['newExpense'])) {
 	$allUsers = DBConnection::getInstance()->selectUsersForEvent($event_id);
 
 	foreach ($allUsers as $user) {
-		if (isset($_POST['check-' . $user['username']])) {
+		if (isset($_POST['check-' . str_replace(".", "_", $user['username'])])) {
 			array_push($usersParticipating, $user['username']);
 		}
 	}

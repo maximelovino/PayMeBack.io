@@ -124,4 +124,26 @@ class DBConnection {
 		$result = $record->fetch(PDO::FETCH_ASSOC);
 		return count($result) > 0 && password_verify($password, $result['password']);
 	}
+
+	public function getAllExpensesForEvent($id) {
+		$query = $this->connection->prepare('SELECT * FROM t_expenses WHERE event_id=:id ORDER BY date DESC');
+		$query->bindParam(':id', $id);
+		$query->execute();
+		return $query->fetchAll(PDO::FETCH_ASSOC);
+	}
+
+	public function getExpensesByUserForExpense($transaction_id) {
+		$query = $this->connection->prepare('SELECT * FROM t_expenses JOIN t_expense_membership ON t_expenses.transaction_id = t_expense_membership.transaction_id  JOIN t_coeffsByTransaction ON t_coeffsByTransaction.transaction_id = t_expenses.transaction_id JOIN t_group_membership ON t_group_membership.username = t_expense_membership.username AND t_group_membership.event_id = t_expenses.event_id JOIN t_events ON t_expenses.event_id = t_events.event_id JOIN t_currencies ON t_events.currency_code = t_currencies.currency_code WHERE t_expenses.transaction_id=:id;');
+		$query->bindParam(':id', $transaction_id);
+		$query->execute();
+		$results = $query->fetchAll(PDO::FETCH_ASSOC);
+		$balance = array();
+		foreach ($results as $result) {
+			if ($result['buyer_username'] != $result['username']) {
+				$total = ($result['coefficient'] / $result['sum']) * $result['amount'];
+				$balance[$result['username']] = round($total / $result['rounding_multiple']) * $result['rounding_multiple'];
+			}
+		}
+		return $balance;
+	}
 }
