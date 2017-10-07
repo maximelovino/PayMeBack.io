@@ -2,27 +2,32 @@
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+require_once "DataValidator.php";
 require_once "DBConnection.php";
 
 if (isset($_SESSION['username'])) {
-    header('location:home.php');
+	header('location:home.php');
 }
 
 if (isset($_POST['login'])) {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+	$username = trim($_POST['username']);
+	$password = trim($_POST['password']);
+	if (DataValidator::isValidUsername($username)) {
+		$login = DBConnection::getInstance()->loginOK($username, $password);
+		if ($login) {
+			$_SESSION['username'] = $username;
+			header('location:home.php');
+			exit;
+		} else {
+			echo '<br><div class="alert alert-danger" role="alert">';
+			echo 'Username or password incorrect';
+			echo '</div>';
+		}
+	} else {
+		http_response_code(400);
+	}
 
-	$login = DBConnection::getInstance()->loginOK($username, $password);
 
-	if ($login) {
-        $_SESSION['username'] = $username;
-        header('location:home.php');
-        exit;
-    } else {
-        echo '<br><div class="alert alert-danger" role="alert">';
-        echo 'Username or password incorrect';
-        echo '</div>';
-    }
 }
 ?>
 
@@ -54,9 +59,8 @@ if (isset($_POST['login'])) {
 </div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
         integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
         crossorigin="anonymous"></script>

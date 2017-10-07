@@ -3,6 +3,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 require_once "DBConnection.php";
+require_once "DataValidator.php"
 ?>
 
 
@@ -42,40 +43,44 @@ require_once "DBConnection.php";
         </div>
         <input type="submit" class="btn btn-primary" value="Sign Up" name="signup">
     </form>
-    <?php
+	<?php
 
-    if (isset($_POST['signup'])) {
-        $username = trim($_POST['username']);
-        $firstName = trim($_POST['firstName']);
-        $lastName = trim($_POST['lastName']);
-        $email = trim($_POST['email']);
-        $password = trim($_POST['password']);
+	if (isset($_POST['signup'])) {
+		$username = trim($_POST['username']);
+		$firstName = trim($_POST['firstName']);
+		$lastName = trim($_POST['lastName']);
+		$email = trim($_POST['email']);
+		$password = trim($_POST['password']);
 
-        $hash = password_hash($password, PASSWORD_DEFAULT);
+		if (DataValidator::isValidUsername($username) && DataValidator::isValidName($firstName) && DataValidator::isValidName($lastName) && DataValidator::isValidEmail($email)) {
+			$hash = password_hash($password, PASSWORD_DEFAULT);
 
-        if (!($username == '' || $password == '')) {
-			$result = DBConnection::getInstance()->getUsersMatching($username);
-            if (count($result) > 0) {
-                //username already taken
-                echo '<br><div class="alert alert-danger" role="alert">';
-                echo 'Username ' . $username . ' already taken';
-                echo '</div>';
-            } else {
-				DBConnection::getInstance()->insertNewUser($username, $firstName, $lastName, $email, $hash);
-                //TODO check answer?
-                echo '<br><div class="alert alert-success" role="alert">';
-                echo 'User ' . $username . ' added';
-                echo '</div>';
-            }
-        }
-    }
-    ?>
+			if (!($username == '' || $password == '')) {
+				$result = DBConnection::getInstance()->getUsersMatching($username);
+				if (count($result) > 0) {
+					//username already taken
+					echo '<br><div class="alert alert-danger" role="alert">';
+					echo 'Username ' . $username . ' already taken';
+					echo '</div>';
+				} else {
+					DBConnection::getInstance()->insertNewUser($username, $firstName, $lastName, $email, $hash);
+					//TODO check answer?
+					echo '<br><div class="alert alert-success" role="alert">';
+					echo 'User ' . $username . ' added';
+					echo '</div>';
+					echo '<a href="index.php" class="btn btn-primary">Proceed to login</a>';
+				}
+			}
+		} else {
+			http_response_code(400);
+		}
+	}
+	?>
 </div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
         integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
         crossorigin="anonymous"></script>

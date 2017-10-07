@@ -18,7 +18,7 @@
 			echo '<ul class="list-group">';
 			foreach ($events as $event) {
 				$value = $balances[$event['event_id']];
-				$class = $value < 0 ? "text-danger" : $value == 0 ? "" : "text-success";
+				$class = $value < 0 ? "text-danger" : ($value == 0 ? "" : "text-success");
 				echo '<a href="events.php?id=' . $event['event_id'] . '" class="list-group-item list-group-item-action"><div class="row"><div class="col"> ' . $event['event_name'] . '</div><div class="col-auto"><span class="' . $class . '">' . $value . ' ' . $event['currency_code'] . '</span></div></div></a>';
 			}
 			echo '</ul>';

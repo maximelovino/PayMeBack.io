@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class DBConnection
+ * Singleton containing functions to retrieve data from the database
+ */
 class DBConnection {
 	private $host = "localhost";
 	private $username = "php";
@@ -145,6 +149,13 @@ class DBConnection {
 			}
 		}
 		return $balance;
+	}
+
+	public function getSingleExpenseDetail($transaction_id) {
+		$query = $this->connection->prepare('SELECT * FROM t_expenses WHERE transaction_id=:id');
+		$query->bindParam(':id', $transaction_id);
+		$query->execute();
+		return $query->fetch(PDO::FETCH_ASSOC);
 	}
 
 	public function getBalanceForEvent($eventID) {

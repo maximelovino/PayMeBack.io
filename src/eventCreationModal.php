@@ -53,7 +53,7 @@
                 <script type="text/javascript">
 
                     function createDivForUsername(username) {
-                        return `<div class="row"><div class="col"><label for="${username}">${username}</label></div><div class="col"><input type="number" value="1" name="weight-${username}" id="weight-${username}"></div></div>`;
+                        return `<div class="row"><div class="col"><label for="${username}">${username}</label></div><div class="col"><input type="number" min="1" value="1" name="weight-${username}" id="weight-${username}"></div></div>`;
                     }
 
                     function weightsDisplay() {

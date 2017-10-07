@@ -18,7 +18,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		include 'expenseCreationModal.php';
 		include 'deleteConfirmationModal.php';
 		?>
-
+        <div id="expenseModalPlaceHolder"></div>
     </div>
     <div class="col" id="content-right">
         <h1><?php echo $event['event_name']; ?></h1>
@@ -29,11 +29,9 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '<ul class="list-group">';
 		$count = 0;
 		foreach ($expenses as $expense) {
-			if ($count > 2) {
-				echo '<button class="list-group-item list-group-item-action expense removable" style="display: none"><div class="row"><div class="col">' . $expense['title'] . '</div><div class="col-auto">' . $expense['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
-			} else {
-				echo '<button class="list-group-item list-group-item-action expense"><div class="row"><div class="col">' . $expense['title'] . '</div><div class="col-auto">' . $expense['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
-			}
+			$classToAdd = $count > 2 ? " removable" : "";
+			$displayToAdd = $count > 2 ? 'style="display: none"' : '';
+			echo '<button id="' . $expense['transaction_id'] . '" class="list-group-item list-group-item-action expense' . $classToAdd . '" ' . $displayToAdd . '><div class="row"><div class="col">' . $expense['title'] . '</div><div class="col-auto">' . $expense['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
 			$count++;
 		}
 		echo '</ul>';
@@ -80,12 +78,24 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '</table>';
 		?>
         <script type="text/javascript">
-            //TODO this
             let hidden = true;
             $('#showMoreLink').click(function () {
                 $(".removable").toggle();
                 hidden = !hidden;
                 $('#showMoreLink').html(hidden ? "Show more expenses" : "Show less expenses");
+            });
+            $('.expense').click(function () {
+                let id = $(this).attr('id');
+                console.log(id);
+                $.ajax({
+                    url: 'singleExpenseModal.php',
+                    data: 'expense=' + id,
+                    success: function (data) {
+                        $('#expenseModalPlaceHolder').html(data);
+                        $('#singleExpenseModal').modal();
+                    },
+                    type: 'GET',
+                });
             })
         </script>
     </div>

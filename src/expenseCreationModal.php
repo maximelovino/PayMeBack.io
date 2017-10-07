@@ -38,7 +38,6 @@
                                    placeholder="0.00" required>
                         </div>
                     </div>
-                    <!--TODO check this, because it could cause a problem-->
                     <div class="form-group">
                         <label for="expenseDate">Date of the expense</label>
                         <input type="text" value="<?php echo date('Y-m-d') ?>" class="form-control" id="expenseDate"
