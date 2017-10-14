@@ -18,9 +18,7 @@ if (isset($_POST['deleteEvent'])) {
 
 	if ($isValid) {
 		DBConnection::getInstance()->deleteEventByID($_POST['id']);
-		header('location:events.php');
-	} else {
-		//TODO return 404
 	}
+	header('location:events.php');
 }
 ?>

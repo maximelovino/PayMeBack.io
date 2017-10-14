@@ -214,4 +214,10 @@ class DBConnection {
 		$query->bindParam(':id', $id);
 		$query->execute();
 	}
+
+	public function deleteExpenseByID($id) {
+		$query = $this->connection->prepare('DELETE FROM t_expenses WHERE transaction_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+	}
 }

@@ -4,6 +4,7 @@ $id = $_GET['expense'];
 $expense = DBConnection::getInstance()->getSingleExpenseDetail($id);
 $balance = DBConnection::getInstance()->getExpensesByUserForExpense($id);
 $event = DBConnection::getInstance()->selectSingleEventByID($expense['event_id']);
+include 'deleteExpenseConfirmationModal.php'
 ?>
 
 <div class="modal fade" id="singleExpenseModal" tabindex="-1" role="dialog"
@@ -38,11 +39,8 @@ $event = DBConnection::getInstance()->selectSingleEventByID($expense['event_id']
                 </table>
             </div>
             <div class="modal-footer">
-				<?php
-				//TODO code the modal to confirm deletion of expense
-				?>
-                <button type="button" class="btn btn-danger" data-toggle="modal"
-                        data-target="#deleteExpenseConfirmation">Remove expense
+                <button type="button" class="btn btn-danger" data-dismiss="modal" data-toggle="modal"
+                        data-target="#deleteExpenseConfirmationModal">Remove expense
                 </button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
