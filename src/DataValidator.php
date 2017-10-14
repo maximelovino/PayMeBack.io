@@ -3,7 +3,7 @@
 class DataValidator {
 
 	public static function isValidUsername($username) {
-		$regexp = '/^[a-zA-Z0-9]+$/';
+		$regexp = '/^[a-z0-9]{1,256}$/';
 		return preg_match($regexp, $username);
 	}
 

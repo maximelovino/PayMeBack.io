@@ -111,7 +111,7 @@ class DBConnection {
 		$insertion->bindParam(':last_name', $last_name);
 		$insertion->bindParam(':email', $email);
 		$insertion->bindParam(':password', $password_hash);
-		$insertion->execute();
+		return $insertion->execute();
 	}
 
 	public function getUsersMatching($username) {

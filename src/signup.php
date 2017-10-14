@@ -3,7 +3,48 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 require_once "DBConnection.php";
-require_once "DataValidator.php"
+require_once "DataValidator.php";
+$validUsername = true;
+$validFirstName = true;
+$validLastName = true;
+$validEmail = true;
+
+if (isset($_POST['signup'])) {
+	$username = trim($_POST['username']);
+	$firstName = trim($_POST['firstName']);
+	$lastName = trim($_POST['lastName']);
+	$email = trim($_POST['email']);
+	$password = trim($_POST['password']);
+
+	$validUsername = DataValidator::isValidUsername($username);
+	$validFirstName = DataValidator::isValidName($firstName);
+	$validLastName = DataValidator::isValidName($lastName);
+	$validEmail = DataValidator::isValidEmail($email);
+
+	if ($validEmail && $validLastName && $validFirstName && $validUsername) {
+		$hash = password_hash($password, PASSWORD_DEFAULT);
+
+		if (!($username == '' || $password == '')) {
+			$result = DBConnection::getInstance()->getUsersMatching($username);
+			if (count($result) > 0) {
+				//username already taken
+				echo '<br><div class="alert alert-danger" role="alert">';
+				echo 'Username ' . $username . ' already taken';
+				echo '</div>';
+			} else {
+				if (DBConnection::getInstance()->insertNewUser($username, $firstName, $lastName, $email, $hash)) {
+					header('location:index.php');
+				} else {
+					echo '<br><div class="alert alert-danger" role="alert">';
+					echo 'There was an error signing you up';
+					echo '</div>';
+				}
+			}
+		}
+	}
+}
+
+
 ?>
 
 
@@ -23,19 +64,46 @@ require_once "DataValidator.php"
     <form action="" method="post">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" name='username' required>
+			<?php
+			$classUsername = 'form-control';
+			if (!$validUsername) {
+				$classUsername .= ' is-invalid';
+			}
+			?>
+            <input type="text" class="<?php echo $classUsername ?>" id="username" name='username' required>
+            <small class="form-text text-muted">The username must contain only letters from a-z and numbers from 0-9 and
+                be smaller than 256 characters.
+            </small>
         </div>
         <div class="form-group">
+			<?php
+			$classFirstName = 'form-control';
+			if (!$validFirstName) {
+				$classFirstName .= ' is-invalid';
+			}
+			?>
             <label for="firstName">First Name</label>
-            <input type="text" class="form-control" id="firstName" name='firstName' required>
+            <input type="text" class="<?php echo $classFirstName ?>" id="firstName" name='firstName' required>
         </div>
         <div class="form-group">
+			<?php
+			$classLastName = 'form-control';
+			if (!$validLastName) {
+				$classLastName .= ' is-invalid';
+			}
+			?>
             <label for="lastName">Last Name</label>
-            <input type="text" class="form-control" id="lastName" name='lastName' required>
+            <input type="text" class="<?php echo $classLastName ?>" id="lastName" name='lastName' required>
         </div>
         <div class="form-group">
+			<?php
+			$classEmail = 'form-control';
+			if (!$validEmail) {
+				$classEmail .= ' is-invalid';
+			}
+			?>
             <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" name='email' required>
+            <input type="email" class="<?php echo $classEmail ?>" id="email" name='email' required>
         </div>
         <div class="form-group">
             <label for="password">Password</label>
@@ -43,39 +111,6 @@ require_once "DataValidator.php"
         </div>
         <input type="submit" class="btn btn-primary" value="Sign Up" name="signup">
     </form>
-	<?php
-
-	if (isset($_POST['signup'])) {
-		$username = trim($_POST['username']);
-		$firstName = trim($_POST['firstName']);
-		$lastName = trim($_POST['lastName']);
-		$email = trim($_POST['email']);
-		$password = trim($_POST['password']);
-
-		if (DataValidator::isValidUsername($username) && DataValidator::isValidName($firstName) && DataValidator::isValidName($lastName) && DataValidator::isValidEmail($email)) {
-			$hash = password_hash($password, PASSWORD_DEFAULT);
-
-			if (!($username == '' || $password == '')) {
-				$result = DBConnection::getInstance()->getUsersMatching($username);
-				if (count($result) > 0) {
-					//username already taken
-					echo '<br><div class="alert alert-danger" role="alert">';
-					echo 'Username ' . $username . ' already taken';
-					echo '</div>';
-				} else {
-					DBConnection::getInstance()->insertNewUser($username, $firstName, $lastName, $email, $hash);
-					//TODO check answer?
-					echo '<br><div class="alert alert-success" role="alert">';
-					echo 'User ' . $username . ' added';
-					echo '</div>';
-					echo '<a href="index.php" class="btn btn-primary">Proceed to login</a>';
-				}
-			}
-		} else {
-			http_response_code(400);
-		}
-	}
-	?>
 </div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->

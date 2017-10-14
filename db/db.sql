@@ -29,7 +29,7 @@ create index t_events_t_currencies_currency_code_fk
 
 create table t_expense_membership
 (
-  transaction_id int          not null,
+  transaction_id INT          NOT NULL,
   username       VARCHAR(256) NOT NULL,
   PRIMARY KEY (transaction_id, username)
 )
@@ -90,6 +90,32 @@ create index t_group_membership_t_events_event_id_fk
 	on t_group_membership (event_id)
 ;
 
+CREATE TABLE t_reimbursement
+(
+  reimbursement_id INT AUTO_INCREMENT
+    PRIMARY KEY,
+  paying_username  VARCHAR(256) NOT NULL,
+  payed_username   VARCHAR(256) NOT NULL,
+  event_id         INT          NOT NULL,
+  amount           INT          NOT NULL,
+  date             DATE         NOT NULL,
+  CONSTRAINT t_reimbursement_reimbursement_id_uindex
+  UNIQUE (reimbursement_id),
+  CONSTRAINT t_reimbursement_t_events_event_id_fk
+  FOREIGN KEY (event_id) REFERENCES t_events (event_id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+CREATE INDEX t_reimbursement_t_events_event_id_fk
+  ON t_reimbursement (event_id);
+
+CREATE INDEX t_reimbursement_t_users_username_fk
+  ON t_reimbursement (paying_username);
+
+CREATE INDEX t_reimbursement_t_users_username_payed_fk
+  ON t_reimbursement (payed_username);
+
 create table t_users
 (
 	username varchar(256) not null
@@ -120,6 +146,16 @@ alter table t_group_membership
 FOREIGN KEY (username) REFERENCES t_users (username)
   ON UPDATE CASCADE;
 
+ALTER TABLE t_reimbursement
+  ADD CONSTRAINT t_reimbursement_t_users_username_fk
+FOREIGN KEY (paying_username) REFERENCES t_users (username)
+  ON UPDATE CASCADE;
+
+ALTER TABLE t_reimbursement
+  ADD CONSTRAINT t_reimbursement_t_users_username_payed_fk
+FOREIGN KEY (payed_username) REFERENCES t_users (username)
+  ON UPDATE CASCADE;
+
 CREATE VIEW t_coeffsbytransaction AS
   SELECT
     `petits_comptes_entre_amis`.`t_expenses`.`transaction_id`           AS `transaction_id`,
@@ -128,8 +164,9 @@ CREATE VIEW t_coeffsbytransaction AS
     JOIN `petits_comptes_entre_amis`.`t_expense_membership`
       ON ((`petits_comptes_entre_amis`.`t_expenses`.`transaction_id` =
            `petits_comptes_entre_amis`.`t_expense_membership`.`transaction_id`))) JOIN
-    `petits_comptes_entre_amis`.`t_group_membership` ON ((`petits_comptes_entre_amis`.`t_group_membership`.`username` =
-                                                          `petits_comptes_entre_amis`.`t_expense_membership`.`username`)))
-  WHERE (`petits_comptes_entre_amis`.`t_group_membership`.`event_id` = 17)
+    `petits_comptes_entre_amis`.`t_group_membership`
+      ON ((`petits_comptes_entre_amis`.`t_expense_membership`.`username` =
+           `petits_comptes_entre_amis`.`t_group_membership`.`username`)))
+  WHERE `petits_comptes_entre_amis`.`t_expenses`.`event_id`
   GROUP BY `petits_comptes_entre_amis`.`t_expenses`.`transaction_id`;
 
