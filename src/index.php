@@ -8,26 +8,24 @@ require_once "DBConnection.php";
 if (isset($_SESSION['username'])) {
 	header('location:home.php');
 }
-
+$validUsername = true;
+$correctLogin = true;
 if (isset($_POST['login'])) {
 	$username = trim($_POST['username']);
 	$password = trim($_POST['password']);
-	if (DataValidator::isValidUsername($username)) {
+	$validUsername = DataValidator::isValidUsername($username);
+	if ($validUsername) {
 		$login = DBConnection::getInstance()->loginOK($username, $password);
 		if ($login) {
 			$_SESSION['username'] = $username;
 			header('location:home.php');
 			exit;
 		} else {
-			echo '<br><div class="alert alert-danger" role="alert">';
-			echo 'Username or password incorrect';
-			echo '</div>';
+			$correctLogin = false;
 		}
 	} else {
-		http_response_code(400);
+		$correctLogin = false;
 	}
-
-
 }
 ?>
 
@@ -56,6 +54,13 @@ if (isset($_POST['login'])) {
         <input type="submit" class="btn btn-primary" value="Login" name="login">
         <a href="signup.php" class="btn btn-secondary">Sign up</a>
     </form>
+	<?php
+	if (!$correctLogin) {
+		echo '<br><div class="alert alert-danger" role="alert">';
+		echo 'Username or password incorrect';
+		echo '</div>';
+	}
+	?>
 </div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
