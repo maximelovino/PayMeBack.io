@@ -96,6 +96,16 @@ class DBConnection {
 
 	}
 
+	public function insertReimbursement($payingUser, $payedUser, $reimbursementEventID, $amount, $date) {
+		$reimbursementInsertionQuery = $this->connection->prepare("INSERT INTO t_reimbursement VALUES (DEFAULT, :paying, :payed, :event, :amount, :date)");
+		$reimbursementInsertionQuery->bindParam(':paying', $payingUser);
+		$reimbursementInsertionQuery->bindParam(':payed', $payedUser);
+		$reimbursementInsertionQuery->bindParam(':event', $reimbursementEventID);
+		$reimbursementInsertionQuery->bindParam(':amount', $amount);
+		$reimbursementInsertionQuery->bindParam(':date', $date);
+		$reimbursementInsertionQuery->execute();
+	}
+
 	public function selectSingleEventByID($id) {
 		$eventQuery = $this->connection->prepare('SELECT * FROM t_events WHERE event_id=:event');
 		$eventQuery->bindParam(':event', $id);
@@ -105,7 +115,7 @@ class DBConnection {
 	}
 
 	public function selectUsersForEvent($event_id) {
-		$peopleQuery = $this->connection->prepare('SELECT username FROM t_group_membership WHERE event_id=:id');
+		$peopleQuery = $this->connection->prepare('SELECT * FROM t_group_membership JOIN t_users ON t_group_membership.username = t_users.username WHERE event_id=:id');
 		$peopleQuery->bindParam(':id', $event_id);
 		$peopleQuery->execute();
 		return $peopleQuery->fetchAll(PDO::FETCH_ASSOC);
@@ -143,6 +153,13 @@ class DBConnection {
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	public function getAllReimbursementsForEvent($id) {
+		$query = $this->connection->prepare('SELECT * FROM t_reimbursement WHERE event_id=:id ORDER BY date DESC');
+		$query->bindParam(':id', $id);
+		$query->execute();
+		return $query->fetchAll(PDO::FETCH_ASSOC);
+	}
+
 	public function getExpensesByUserForExpense($transaction_id) {
 		$query = $this->connection->prepare('SELECT * FROM t_expenses JOIN t_expense_membership ON t_expenses.transaction_id = t_expense_membership.transaction_id  JOIN t_coeffsByTransaction ON t_coeffsByTransaction.transaction_id = t_expenses.transaction_id JOIN t_group_membership ON t_group_membership.username = t_expense_membership.username AND t_group_membership.event_id = t_expenses.event_id JOIN t_events ON t_expenses.event_id = t_events.event_id JOIN t_currencies ON t_events.currency_code = t_currencies.currency_code WHERE t_expenses.transaction_id=:id;');
 		$query->bindParam(':id', $transaction_id);
@@ -167,6 +184,7 @@ class DBConnection {
 
 	public function getBalanceForEvent($eventID) {
 		$expenses = $this->getAllExpensesForEvent($eventID);
+		$reimbursements = $this->getAllReimbursementsForEvent($eventID);
 		$balance = array();
 		foreach ($expenses as $expense) {
 			$data = $this->getExpensesByUserForExpense($expense['transaction_id']);

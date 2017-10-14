@@ -34,7 +34,7 @@ if (isset($_POST['newEvent'])) {
 	$currency = trim($_POST['eventCurrency']);
 	$validCurrency = DataValidator::isValidCurrency($currency);
 	$weights = array();
-
+	//TODO trim all users and weights
 	foreach ($users as $user) {
 		$validUsers[$user] = DataValidator::usernameExists($user);
 		$weights[$user] = $_POST["weight-" . $user];
@@ -48,6 +48,33 @@ if (isset($_POST['newEvent'])) {
 		$showModal = true;
 	}
 }
+
+$validReimbursementPayer = true;
+$validReimbursementPayed = true;
+$validReimbursementAmount = true;
+$validReimbursementDate = true;
+$usersDifferent = true;
+
+if (isset($_POST['newReimbursement'])) {
+	$payingUser = trim($_POST['paying_user']);
+	$payedUser = trim($_POST['payed_user']);
+	$validReimbursementPayer = DataValidator::usernameExists($payingUser);
+	$validReimbursementPayed = DataValidator::usernameExists($payedUser);
+	$reimbursementEventID = trim($_POST['event_id']);
+	$amount = trim($_POST['amount']);
+	$validReimbursementAmount = DataValidator::isValidAmount($amount);
+	$date = trim($_POST['date']);
+	$validReimbursementDate = DataValidator::isValidDate($date);
+
+	$usersDifferent = $payingUser != $payedUser;
+
+	if ($validReimbursementDate && $validReimbursementPayer && $validReimbursementPayed && $validReimbursementAmount && $usersDifferent) {
+		DBConnection::getInstance()->insertReimbursement($payingUser, $payedUser, $reimbursementEventID, $amount, $date);
+	}
+	header('location: events.php?id=' . $reimbursementEventID);
+}
+
+
 ?>
 
 <!DOCTYPE html>

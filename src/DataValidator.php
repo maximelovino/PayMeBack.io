@@ -30,7 +30,7 @@ class DataValidator {
 	}
 
 	public static function isValidAmount($amount) {
-		$regexp = '/^[0-9]+(\.[0-9]{1,2})$/';
+		$regexp = '/^[0-9]+(\.[0-9]{1,2})?$/';
 		return preg_match($regexp, $amount);
 	}
 

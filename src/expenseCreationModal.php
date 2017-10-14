@@ -49,6 +49,7 @@
                         <?php
                         echo '<select class="form-control" id="expenseMaker" name="expenseMaker">';
                         foreach ($people as $person) {
+							//TODO input full name here
                             if ($person['username'] == $_SESSION['username']) {
                                 echo '<option selected="selected">';
                             } else {

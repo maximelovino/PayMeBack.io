@@ -10,10 +10,15 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
             New expense
         </button>
         <br>
+        <button type="button" class="btn btn-secondary btn-block" data-toggle="modal"
+                data-target="#createReimbursementModal">New direct payment
+        </button>
+        <br>
         <button type="button" class="btn btn-danger btn-block" data-toggle="modal"
                 data-target="#deleteConfirmationModal">Delete Event
         </button>
 		<?php
+		include "reimbursementModal.php";
 		include 'expenseCreationModal.php';
 		include 'deleteConfirmationModal.php';
 		?>
@@ -39,6 +44,18 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		} elseif ($count == 0) {
 			echo '<p>No expenses added to this event yet</p>';
 		}
+		echo '<h2>Latest direct payments</h2>';
+		$reimbursements = DBConnection::getInstance()->getAllReimbursementsForEvent($event['event_id']);
+		//TODO display expendable list like expenses
+		if (count($reimbursements) > 0) {
+			echo '<ul class="list-group">';
+			foreach ($reimbursements as $reimbursement) {
+				echo '<li class="list-group-item list-group-item-action"><div class="row"><div class="col">' . $reimbursement['paying_username'] . ' => ' . $reimbursement['payed_username'] . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></li>';
+			}
+		} else {
+			echo '<p>No direct payments made</p>';
+		}
+		echo '</ul>';
 		echo '<h2>Balance</h2>';
 		$balance = DBConnection::getInstance()->getBalanceForEvent($event['event_id']);
 		$users = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
