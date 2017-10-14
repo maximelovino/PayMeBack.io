@@ -24,6 +24,9 @@
 			echo '</ul>';
 		}
 		echo '</div>';
+		if ($showModal) {
+			echo '<script type="text/javascript">$("#createEventModal").modal()</script>';
+		}
 		?>
     </div>
 </div>

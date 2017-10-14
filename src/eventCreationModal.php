@@ -8,19 +8,29 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="createEvent.php" method="post">
+            <form action="events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="eventTitle">Title of the event</label>
-                        <input type="text" class="form-control" id="eventTitle" name='eventTitle' required>
+						<?php
+						if ($validTitle) {
+							echo '<input type="text" class="form-control" id="eventTitle" name="eventTitle" required>';
+						} else {
+							echo '<input type="text" class="form-control is-invalid" id="eventTitle" name="eventTitle" value="' . $eventTitle . '"required>';
+						}
+						?>
                         <small id="titleHelp" class="form-text text-muted">The title of your event must be less
                             than 256 characters long.
                         </small>
                     </div>
                     <div class="form-group">
                         <label for="eventDescription">Description of the event</label>
-                        <textarea class="form-control" name="eventDescription" id="eventDescription"
-                                  rows="4"></textarea>
+						<?php if ($showModal) {
+							echo '<textarea class="form-control" name="eventDescription" id="eventDescription" rows="4">' . $description . '</textarea>';
+						} else {
+							echo '<textarea class="form-control" name="eventDescription" id="eventDescription" rows="4"></textarea>';
+						}
+						?>
                     </div>
                     <div class="form-group">
                         <label for="eventCurrency">Currency for the event</label>
@@ -36,7 +46,14 @@
                     </div>
                     <div class="form-group">
                         <label for="eventUsers">Who are you going with?</label>
-                        <select multiple name="eventUsers[]" id="eventUsers" class="form-control" required>
+						<?php
+						$classSelect = "form-control";
+						if (!$validUserArray) {
+							$classSelect .= " is-invalid";
+						}
+						?>
+                        <select multiple name="eventUsers[]" id="eventUsers" class="<?php echo $classSelect; ?>"
+                                required>
 							<?php
 							$users = DBConnection::getInstance()->getAllUsers();
 							foreach ($users as $user) {
@@ -45,6 +62,11 @@
 							}
 							?>
                         </select>
+						<?php
+						if (!$validUserArray) {
+							echo '<small class="text-muted form-text">You must select at least one other user</small>';
+						}
+						?>
                     </div>
 					<?php
 					?>

@@ -1,6 +1,5 @@
 <?php
 $id = $_GET['id'];
-//TODO if event not found, redirect to 404
 $event = DBConnection::getInstance()->selectSingleEventByID($id);
 ?>
 <div class="row mt-5">

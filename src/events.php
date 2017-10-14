@@ -5,9 +5,48 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 
 require_once 'DBConnection.php';
+require_once 'DataValidator.php';
 
 if (!isset($_SESSION['username'])) {
 	header("location: index.php");
+}
+
+if (isset($_GET['id'])) {
+	$id = $_GET['id'];
+	if (DBConnection::getInstance()->selectSingleEventByID($id) == null) {
+		header('location: error_pages/404.php');
+	}
+}
+
+$validTitle = true;
+$validCurrency = true;
+$validWeights = array();
+$validUsers = array();
+$validUserArray = true;
+$showModal = false;
+
+if (isset($_POST['newEvent'])) {
+	$eventTitle = trim($_POST['eventTitle']);
+	$validTitle = DataValidator::isValidTitle($eventTitle);
+	$description = trim($_POST['eventDescription']);
+	$users = $_POST['eventUsers'];
+	array_push($users, $_SESSION['username']);
+	$currency = trim($_POST['eventCurrency']);
+	$validCurrency = DataValidator::isValidCurrency($currency);
+	$weights = array();
+
+	foreach ($users as $user) {
+		$validUsers[$user] = DataValidator::usernameExists($user);
+		$weights[$user] = $_POST["weight-" . $user];
+		$validWeights[$user] = DataValidator::isValidWeight($weights[$user]);
+	}
+	$validUserArray = DataValidator::isValidUsersArray($users);
+
+	if ($validUserArray && $validTitle && $validCurrency && !in_array(false, $validWeights, true) && !in_array(false, $validUsers, true)) {
+		DBConnection::getInstance()->insertNewEvent($eventTitle, $description, $users, $currency, $weights);
+	} else {
+		$showModal = true;
+	}
 }
 ?>
 
@@ -37,7 +76,6 @@ if (!isset($_SESSION['username'])) {
 	<?php
 	include 'navbar.html';
 	if (isset($_GET['id'])) {
-		//TODO direct to 404 here
 		include 'singleEventPageBody.php';
 	} else {
 		include 'allEventsBody.php';

@@ -45,6 +45,13 @@ class DBConnection {
 		return $this->connection->query("SELECT * FROM t_currencies ORDER BY currency_code", PDO::FETCH_ASSOC);
 	}
 
+	public function getCurrency($currencyCode) {
+		$query = $this->connection->prepare("SELECT * FROM t_currencies WHERE currency_code=:code");
+		$query->bindParam(':code', $currencyCode);
+		$query->execute();
+		return $query->fetch(PDO::FETCH_ASSOC);
+	}
+
 	public function insertNewEvent($title, $description, $users, $currency, $weights) {
 
 		//TODO Check that it went through

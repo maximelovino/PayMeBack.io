@@ -1,6 +1,18 @@
 <?php
+require_once 'DBConnection.php';
 
 class DataValidator {
+	public static function isValidCurrency($currencyCode) {
+		return DBConnection::getInstance()->getCurrency($currencyCode) != null;
+	}
+
+	public static function usernameExists($username) {
+		return DBConnection::getInstance()->getUsersMatching($username) > 0;
+	}
+
+	public static function isValidUsersArray($usersArray) {
+		return count($usersArray) > 1;
+	}
 
 	public static function isValidUsername($username) {
 		$regexp = '/^[a-z0-9]{1,256}$/';
