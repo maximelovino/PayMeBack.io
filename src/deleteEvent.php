@@ -6,7 +6,6 @@ if (!isset($_SESSION)) {
 }
 
 if (isset($_POST['deleteEvent'])) {
-	//TODO you must be able to delete only if it's one of your events
 	$eventsForUser = DBConnection::getInstance()->getAllEventsForUser($_SESSION['username']);
 	$isValid = false;
 	foreach ($eventsForUser as $event) {

@@ -53,16 +53,17 @@ class DBConnection {
 	}
 
 	public function insertNewEvent($title, $description, $users, $currency, $weights) {
-
-		//TODO Check that it went through
-		//TODO wrap in transaction
-
+		$this->connection->beginTransaction();
 		$eventInsertionSQL = 'INSERT INTO t_events VALUES (DEFAULT,:name,:desc,:currency)';
 		$eventInsertionQuery = $this->connection->prepare($eventInsertionSQL);
 		$eventInsertionQuery->bindParam(':name', $title);
 		$eventInsertionQuery->bindParam(':desc', $description);
 		$eventInsertionQuery->bindParam(':currency', $currency);
-		$eventInsertionQuery->execute();
+		$result = $eventInsertionQuery->execute();
+		if (!$result) {
+			$this->connection->rollBack();
+			return false;
+		}
 		$idEvent = $this->connection->lastInsertId();
 
 
@@ -71,12 +72,18 @@ class DBConnection {
 			$insertionQuery->bindParam(':username', $user);
 			$insertionQuery->bindParam(':id', $idEvent);
 			$insertionQuery->bindParam(':weight', $weights[$user]);
-			$insertionQuery->execute();
+			$result = $insertionQuery->execute();
+			if (!$result) {
+				$this->connection->rollBack();
+				return false;
+			}
 		}
+		$this->connection->commit();
+		return true;
 	}
 
 	public function insertExpense($title, $description, $eventID, $amount, $date, $buyer, $involvedUsers) {
-		//TODO transaction
+		$this->connection->beginTransaction();
 		$expenseInsertionQuery = $this->connection->prepare("INSERT INTO t_expenses VALUES (DEFAULT , :title, :desc, :amount, :date, :buyer, :event)");
 		$expenseInsertionQuery->bindParam(':title', $title);
 		$expenseInsertionQuery->bindParam(':desc', $description);
@@ -84,16 +91,25 @@ class DBConnection {
 		$expenseInsertionQuery->bindParam(':date', $date);
 		$expenseInsertionQuery->bindParam(':buyer', $buyer);
 		$expenseInsertionQuery->bindParam(':event', $eventID);
-		$expenseInsertionQuery->execute();
+		$result = $expenseInsertionQuery->execute();
+		if (!$result) {
+			$this->connection->rollBack();
+			return false;
+		}
 		$idExpense = $this->connection->lastInsertId();
 
 		foreach ($involvedUsers as $user) {
 			$insertionQuery = $this->connection->prepare("INSERT INTO t_expense_membership VALUES (:id,:name)");
 			$insertionQuery->bindParam(':id', $idExpense);
 			$insertionQuery->bindParam(':name', $user);
-			$insertionQuery->execute();
+			$result = $insertionQuery->execute();
+			if (!$result) {
+				$this->connection->rollBack();
+				return false;
+			}
 		}
-
+		$this->connection->commit();
+		return true;
 	}
 
 	public function insertReimbursement($payingUser, $payedUser, $reimbursementEventID, $amount, $date) {
@@ -103,7 +119,7 @@ class DBConnection {
 		$reimbursementInsertionQuery->bindParam(':event', $reimbursementEventID);
 		$reimbursementInsertionQuery->bindParam(':amount', $amount);
 		$reimbursementInsertionQuery->bindParam(':date', $date);
-		$reimbursementInsertionQuery->execute();
+		return $reimbursementInsertionQuery->execute();
 	}
 
 	public function selectSingleEventByID($id) {
@@ -208,6 +224,29 @@ class DBConnection {
 				$balance[$buyer][$user] += $amount;
 				$balance[$user][$buyer] -= $amount;
 			}
+		}
+		foreach ($reimbursements as $reimbursement) {
+			$in = $reimbursement['paying_username'];
+			$out = $reimbursement['payed_username'];
+			$amount = $reimbursement['amount'];
+
+			if (!isset($balance[$out])) {
+				$balance[$out] = array();
+			}
+			if (!isset($balance[$in])) {
+				$balance[$in] = array();
+			}
+
+			if (!isset($balance[$out][$in])) {
+				$balance[$out][$in] = 0;
+			}
+
+			if (!isset($balance[$in][$out])) {
+				$balance[$in][$out] = 0;
+			}
+
+			$balance[$in][$out] += $amount;
+			$balance[$out][$in] -= $amount;
 		}
 		return $balance;
 	}

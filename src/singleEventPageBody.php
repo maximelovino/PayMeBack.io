@@ -81,7 +81,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 							echo 0;
 						} else {
 							$value = $balance[$users[$i]['username']][$users[$j - 1]['username']];
-							$class = $value < 0 ? "text-danger" : "text-success";
+							$class = $value < 0 ? "text-danger" : $value != 0 ? "text-success" : "";
 							echo '<span class="' . $class . '">' . $value . '</span>';
 						}
 					}
