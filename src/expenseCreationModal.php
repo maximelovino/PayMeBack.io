@@ -84,7 +84,7 @@
                         <label for="expenseMaker">Who paid for it?</label>
 						<?php
 						$userSelected = $_SESSION['username'];
-						$class = "form-control";
+						$class = "custom-select form-control";
 						if ($redraw) {
 							$userSelected = $_SESSION['expenseMaker'];
 							if (!$_SESSION['validExpenseMaker']) {

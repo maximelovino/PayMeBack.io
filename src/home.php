@@ -33,19 +33,21 @@ if (!isset($_SESSION['username'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
 </head>
 <body>
+<?php
+include "navbar.html";
+?>
 <div class="container mt-5">
-	<?php
-	include "navbar.html";
-	?>
     <div class="container mt-5" id="content">
         <p class="lead">Hello world from home</p>
         <p class="lead">Total balance
             is <?php echo DBConnection::getInstance()->getTotalBalanceForUser($_SESSION['username']); ?></p>
     </div>
 </div>
+<?php
+include "footer.html"
+?>
 <script type="text/javascript">
-    $("#homeLink").toggleClass("btn-outline-primary");
-    $("#homeLink").toggleClass("btn-primary");
+    $("#homeLink").toggleClass("active");
 </script>
 
 </body>

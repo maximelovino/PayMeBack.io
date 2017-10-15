@@ -157,9 +157,11 @@ if (isset($_POST['newExpense'])) {
 </head>
 
 <body>
+<?php
+include "navbar.html";
+?>
 <div class="container mt-5">
 	<?php
-	include 'navbar.html';
 	if (isset($_GET['id'])) {
 		include 'singleEventPageBody.php';
 	} else {
@@ -168,9 +170,11 @@ if (isset($_POST['newExpense'])) {
 	?>
 
 </div>
+<?php
+include "footer.html"
+?>
 <script type="text/javascript">
-    $("#eventsLink").toggleClass("btn-outline-dark");
-    $("#eventsLink").toggleClass("btn-dark");
+    $("#eventsLink").toggleClass("active");
 </script>
 </body>
 
