@@ -34,7 +34,10 @@ if (isset($_POST['newEvent'])) {
 	$currency = trim($_POST['eventCurrency']);
 	$validCurrency = DataValidator::isValidCurrency($currency);
 	$weights = array();
-	//TODO trim all users and weights
+
+	$users = array_map('trim', $users);
+	$weights = array_map('trim', $weights);
+
 	foreach ($users as $user) {
 		$validUsers[$user] = DataValidator::usernameExists($user);
 		$weights[$user] = $_POST["weight-" . $user];
@@ -70,8 +73,48 @@ if (isset($_POST['newReimbursement'])) {
 
 	if ($validReimbursementDate && $validReimbursementPayer && $validReimbursementPayed && $validReimbursementAmount && $usersDifferent) {
 		DBConnection::getInstance()->insertReimbursement($payingUser, $payedUser, $reimbursementEventID, $amount, $date);
+	} else {
+		//TODO show modal here
 	}
 	header('location: events.php?id=' . $reimbursementEventID);
+}
+
+
+$validExpenseTitle = true;
+$validExpenseEventID = true;
+$validExpenseDate = true;
+$validExpenseAmount = true;
+$validExpenseMaker = true;
+
+if (isset($_POST['newExpense'])) {
+	$event_id = trim($_POST['event_id']);
+	$validExpenseEventID = DataValidator::isValidEventID($event_id);
+	$title = trim($_POST['expenseTitle']);
+	$validExpenseTitle = DataValidator::isValidTitle($title);
+	$description = trim($_POST['expenseDescription']);
+	$date = trim($_POST['expenseDate']);
+	$validExpenseDate = DataValidator::isValidDate($date);
+	$amount = trim($_POST['expenseAmount']);
+	$validExpenseAmount = DataValidator::isValidAmount($amount);
+	$makerUsername = trim($_POST['expenseMaker']);
+	$validExpenseMaker = DataValidator::usernameExists($makerUsername);
+	$usersParticipating = array();
+	$allUsers = DBConnection::getInstance()->selectUsersForEvent($event_id);
+
+	foreach ($allUsers as $user) {
+		if (isset($_POST['check-' . $user['username']])) {
+			array_push($usersParticipating, $user['username']);
+		}
+	}
+
+	if ($validExpenseMaker && $validExpenseAmount && $validExpenseDate && $validExpenseTitle && $validExpenseEventID) {
+		$event = DBConnection::getInstance()->selectSingleEventByID($event_id);
+		$roundedAmount = DBConnection::getInstance()->roundAmountToCurrency($amount, $event['currency_code']);
+		DBConnection::getInstance()->insertExpense($title, $description, $event_id, $roundedAmount, $date, $makerUsername, $usersParticipating);
+	} else {
+		//TODO show modal here
+	}
+	header('location: events.php?id=' . $event_id);
 }
 
 

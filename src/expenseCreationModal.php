@@ -11,7 +11,7 @@
             <?php
 			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
             ?>
-            <form action="createExpense.php" method="post">
+            <form action="events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group" hidden>
                         <label for="eventID">Event ID</label>
@@ -49,13 +49,12 @@
                         <?php
                         echo '<select class="form-control" id="expenseMaker" name="expenseMaker">';
                         foreach ($people as $person) {
-							//TODO input full name here
                             if ($person['username'] == $_SESSION['username']) {
-                                echo '<option selected="selected">';
+								echo '<option value="' . $person['username'] . '" selected="selected">';
                             } else {
-                                echo '<option>';
+								echo '<option value="' . $person['username'] . '">';
                             }
-                            echo $person['username'] . '</option>';
+							echo $person['first_name'] . ' ' . $person['last_name'] . '</option>';
                         }
                         echo '</select>';
                         ?>
@@ -67,7 +66,7 @@
                             echo '<div class="form-check">';
                             echo '<label class="form-check-label">';
                             echo '<input class="form-check-input" type="checkbox" name=check-' . $person['username'] . ' checked>';
-                            echo '&nbsp' . $person['username'];
+							echo '&nbsp' . $person['first_name'] . ' ' . $person['last_name'];
                             echo '</label>';
                             echo '</div>';
                         }

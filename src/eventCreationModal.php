@@ -58,7 +58,7 @@
 							$users = DBConnection::getInstance()->getAllUsers();
 							foreach ($users as $user) {
 								if ($user['username'] != $_SESSION['username'])
-									echo '<option value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
+									echo '<option value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . ' - ' . $user['username'] . '</option>';
 							}
 							?>
                         </select>

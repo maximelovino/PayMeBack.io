@@ -10,6 +10,10 @@ class DataValidator {
 		return DBConnection::getInstance()->getUsersMatching($username) > 0;
 	}
 
+	public static function isValidEventID($id) {
+		return DBConnection::getInstance()->selectSingleEventByID($id) != null;
+	}
+
 	public static function isValidUsersArray($usersArray) {
 		return count($usersArray) > 1;
 	}

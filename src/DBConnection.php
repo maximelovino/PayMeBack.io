@@ -185,7 +185,7 @@ class DBConnection {
 		foreach ($results as $result) {
 			if ($result['buyer_username'] != $result['username']) {
 				$total = ($result['coefficient'] / $result['sum']) * $result['amount'];
-				$balance[$result['username']] = round($total / $result['rounding_multiple']) * $result['rounding_multiple'];
+				$balance[$result['username']] = $this->roundAmountToCurrency($total, $result['currency_code']);
 			}
 		}
 		return $balance;
@@ -266,6 +266,17 @@ class DBConnection {
 		return $balance;
 	}
 
+	private function sum($carry, $item) {
+		$carry += $item;
+		return $carry;
+	}
+
+	public function getTotalBalanceForUser($username) {
+		//TODO this should be separated by currency
+		$balanceByEvent = $this->getBalanceForEachEventForUser($username);
+		return array_sum($balanceByEvent);
+	}
+
 	public function deleteEventByID($id) {
 		$query = $this->connection->prepare('DELETE FROM t_events WHERE event_id=:id');
 		$query->bindParam(':id', $id);
@@ -276,5 +287,12 @@ class DBConnection {
 		$query = $this->connection->prepare('DELETE FROM t_expenses WHERE transaction_id=:id');
 		$query->bindParam(':id', $id);
 		$query->execute();
+	}
+
+	public function roundAmountToCurrency($amount, $currencyCode) {
+		$amountValue = doubleval($amount);
+		$currency = $this->getCurrency($currencyCode);
+
+		return round($amountValue / $currency['rounding_multiple']) * $currency['rounding_multiple'];
 	}
 }
