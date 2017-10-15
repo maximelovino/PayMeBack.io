@@ -18,6 +18,17 @@ class DataValidator {
 		return count($usersArray) > 1;
 	}
 
+	public static function hasUserAccessToEvent($username, $event_id) {
+		$eventsForUser = DBConnection::getInstance()->getAllEventsForUser($username);
+
+		foreach ($eventsForUser as $event) {
+			if ($event['event_id'] == $event_id) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static function isValidUsername($username) {
 		$regexp = '/^[a-z0-9]{1,256}$/';
 		return preg_match($regexp, $username);

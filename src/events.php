@@ -13,6 +13,11 @@ if (!isset($_SESSION['username'])) {
 
 if (isset($_GET['id'])) {
 	$id = $_GET['id'];
+
+	if (!DataValidator::hasUserAccessToEvent($_SESSION['username'], $id)) {
+		header('location: events.php');
+	}
+
 	if (DBConnection::getInstance()->selectSingleEventByID($id) == null) {
 		header('location: error_pages/404.php');
 	}
