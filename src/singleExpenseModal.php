@@ -33,7 +33,8 @@ include 'deleteExpenseConfirmationModal.php'
                 <table class="table">
 					<?php
 					foreach ($balance as $user => $amount) {
-						echo '<tr><td>' . $user . '</td><td>' . $amount . ' ' . $event['currency_code'] . '</td></tr>';
+						$fullUser = DBConnection::getInstance()->getSingleUser($user);
+						echo '<tr><td>' . $fullUser['first_name'] . ' ' . $fullUser['last_name'] . '</td><td>' . $amount . ' ' . $event['currency_code'] . '</td></tr>';
 					}
 					?>
                 </table>

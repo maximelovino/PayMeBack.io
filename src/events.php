@@ -23,6 +23,7 @@ $validCurrency = true;
 $validWeights = array();
 $validUsers = array();
 $validUserArray = true;
+//TODO use session instead of this variable
 $showModal = false;
 
 if (isset($_POST['newEvent'])) {
@@ -112,7 +113,16 @@ if (isset($_POST['newExpense'])) {
 		$roundedAmount = DBConnection::getInstance()->roundAmountToCurrency($amount, $event['currency_code']);
 		DBConnection::getInstance()->insertExpense($title, $description, $event_id, $roundedAmount, $date, $makerUsername, $usersParticipating);
 	} else {
-		//TODO show modal here
+		$_SESSION['showExpenseModal'] = true;
+		$_SESSION['expenseTitle'] = $title;
+		$_SESSION['expenseDescription'] = $description;
+		$_SESSION['expenseDate'] = $date;
+		$_SESSION['expenseAmount'] = $amount;
+		$_SESSION['expenseMaker'] = $makerUsername;
+		$_SESSION['validExpenseTitle'] = $validExpenseTitle;
+		$_SESSION['validExpenseDate'] = $validExpenseDate;
+		$_SESSION['validExpenseAmount'] = $validExpenseAmount;
+		$_SESSION['validExpenseMaker'] = $validExpenseMaker;
 	}
 	header('location: events.php?id=' . $event_id);
 }

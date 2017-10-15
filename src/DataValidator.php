@@ -7,7 +7,7 @@ class DataValidator {
 	}
 
 	public static function usernameExists($username) {
-		return DBConnection::getInstance()->getUsersMatching($username) > 0;
+		return DBConnection::getInstance()->getSingleUser($username) != null;
 	}
 
 	public static function isValidEventID($id) {

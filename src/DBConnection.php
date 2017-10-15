@@ -148,10 +148,17 @@ class DBConnection {
 	}
 
 	public function getUsersMatching($username) {
-		$records = $this->connection->prepare('SELECT username FROM t_users WHERE username= :uname');
+		$records = $this->connection->prepare('SELECT * FROM t_users WHERE username= :uname');
 		$records->bindParam(':uname', $username);
 		$records->execute();
 		return $records->fetchAll();
+	}
+
+	public function getSingleUser($username) {
+		$records = $this->connection->prepare('SELECT * FROM t_users WHERE username= :uname');
+		$records->bindParam(':uname', $username);
+		$records->execute();
+		return $records->fetch(PDO::FETCH_ASSOC);
 	}
 
 	public function loginOK($username, $password) {
@@ -264,11 +271,6 @@ class DBConnection {
 			}
 		}
 		return $balance;
-	}
-
-	private function sum($carry, $item) {
-		$carry += $item;
-		return $carry;
 	}
 
 	public function getTotalBalanceForUser($username) {

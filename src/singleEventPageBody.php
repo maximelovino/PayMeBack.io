@@ -64,7 +64,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '<tr>';
 		echo '<th></th>';
 		foreach ($users as $user) {
-			echo '<th>' . $user['username'] . '</th>';
+			echo '<th>' . $user['first_name'] . ' ' . $user['last_name'] . '</th>';
 		}
 		echo '</tr>';
 		for ($i = 0; $i < count($users); $i++) {
@@ -72,7 +72,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 			for ($j = 0; $j <= count($users); $j++) {
 				echo '<th>';
 				if ($j == 0) {
-					echo $users[$i]['username'];
+					echo $users[$i]['first_name'] . ' ' . $users[$i]['last_name'];
 				} else {
 					if ($i == $j - 1) {
 						echo "-";
@@ -81,7 +81,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 							echo 0;
 						} else {
 							$value = $balance[$users[$i]['username']][$users[$j - 1]['username']];
-							$class = $value < 0 ? "text-danger" : $value != 0 ? "text-success" : "";
+							$class = $value < 0 ? "text-danger" : ($value != 0 ? "text-success" : "");
 							echo '<span class="' . $class . '">' . $value . '</span>';
 						}
 					}
@@ -114,5 +114,11 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
                 });
             })
         </script>
+		<?php
+
+		if (isset($_SESSION['showExpenseModal']) && $_SESSION['showExpenseModal']) {
+			echo '<script type="text/javascript">$("#createExpenseModal").modal()</script>';
+		}
+		?>
     </div>
 </div>

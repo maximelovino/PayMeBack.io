@@ -8,9 +8,11 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <?php
+			<?php
+			$redraw = isset($_SESSION['showExpenseModal']) && $_SESSION['showExpenseModal'];
+			$_SESSION['showExpenseModal'] = false;
 			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
-            ?>
+			?>
             <form action="events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group" hidden>
@@ -20,57 +22,100 @@
                     </div>
                     <div class="form-group">
                         <label for="expenseTitle">Title of the expense</label>
-                        <input type="text" class="form-control" id="expenseTitle" name='expenseTitle' required>
+						<?php
+						$value = "";
+						$class = "form-control";
+						if ($redraw) {
+							$value = $_SESSION['expenseTitle'];
+							if (!$_SESSION['validExpenseTitle']) {
+								$class .= " is-invalid";
+							}
+						}
+						echo '<input type="text" class="' . $class . '" id="expenseTitle" name="expenseTitle" value="' . $value . '" required>'
+						?>
                         <small id="titleHelp" class="form-text text-muted">The title of your expense must be less
                             than 256 characters long.
                         </small>
                     </div>
                     <div class="form-group">
                         <label for="expenseDescription">Description of the expense</label>
-                        <textarea class="form-control" name="expenseDescription" id="expenseDescription"
-                                  rows="4"></textarea>
+						<?php
+						$value = "";
+						$class = "form-control";
+						if ($redraw) {
+							$value = $_SESSION['expenseDescription'];
+						}
+						echo '<textarea class="form-control" name="expenseDescription" id="expenseDescription" rows="4">' . $value . '</textarea>'
+						?>
                     </div>
                     <div class="form-group">
                         <label for="expenseAmount">How much is the expense?</label>
                         <div class="input-group">
                             <span class="input-group-addon"><?php echo $event['currency_code']; ?></span>
-                            <input type="text" class="form-control" name="expenseAmount" id="expenseAmount"
-                                   placeholder="0.00" required>
+							<?php
+							$value = "";
+							$class = "form-control";
+							if ($redraw) {
+								$value = $_SESSION['expenseAmount'];
+								if (!$_SESSION['validExpenseAmount']) {
+									$class .= " is-invalid";
+								}
+							}
+							echo '<input type="text" class="' . $class . '" name="expenseAmount" id="expenseAmount" placeholder="0.00" value="' . $value . '" required>'
+							?>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="expenseDate">Date of the expense</label>
-                        <input type="text" value="<?php echo date('Y-m-d') ?>" class="form-control" id="expenseDate"
-                               name="expenseDate" required>
+						<?php
+						$value = date('Y-m-d');
+						$class = "form-control";
+						if ($redraw) {
+							$value = $_SESSION['expenseDate'];
+							if (!$_SESSION['validExpenseDate']) {
+								$class .= " is-invalid";
+							}
+						}
+						echo '<input type="text" value="' . $value . '" class="' . $class . '" id="expenseDate" name="expenseDate" required>'
+						?>
                         <small id="dateFormatHelp" class="form-text text-muted">Use format YYYY-mm-dd for dates</small>
                     </div>
                     <div class="form-group">
                         <label for="expenseMaker">Who paid for it?</label>
-                        <?php
-                        echo '<select class="form-control" id="expenseMaker" name="expenseMaker">';
-                        foreach ($people as $person) {
-                            if ($person['username'] == $_SESSION['username']) {
+						<?php
+						$userSelected = $_SESSION['username'];
+						$class = "form-control";
+						if ($redraw) {
+							$userSelected = $_SESSION['expenseMaker'];
+							if (!$_SESSION['validExpenseMaker']) {
+								$class .= " is-invalid";
+							}
+						}
+
+						echo '<select class="' . $class . '" id="expenseMaker" name="expenseMaker">';
+						foreach ($people as $person) {
+							if ($person['username'] == $userSelected) {
 								echo '<option value="' . $person['username'] . '" selected="selected">';
-                            } else {
+							} else {
 								echo '<option value="' . $person['username'] . '">';
-                            }
+							}
 							echo $person['first_name'] . ' ' . $person['last_name'] . '</option>';
-                        }
-                        echo '</select>';
-                        ?>
+						}
+						echo '</select>';
+						?>
                     </div>
                     <div class="form-group">
                         <label for="expensePeople">People involved in the expense</label>
-                        <?php
-                        foreach ($people as $person) {
-                            echo '<div class="form-check">';
-                            echo '<label class="form-check-label">';
-                            echo '<input class="form-check-input" type="checkbox" name=check-' . $person['username'] . ' checked>';
+						<?php
+						foreach ($people as $person) {
+							echo '<div class="form-check">';
+							echo '<label class="form-check-label">';
+							echo '<input class="form-check-input" type="checkbox" name=check-' . $person['username'] . ' checked>';
 							echo '&nbsp' . $person['first_name'] . ' ' . $person['last_name'];
-                            echo '</label>';
-                            echo '</div>';
-                        }
-                        ?>
+							echo '</label>';
+							echo '</div>';
+						}
+						?>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
