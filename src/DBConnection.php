@@ -176,7 +176,7 @@ class DBConnection {
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
-	public function getAllReimbursementsForEvent($id) {
+	public function getAllDirectPaymentsForEvent($id) {
 		$query = $this->connection->prepare('SELECT * FROM t_reimbursement WHERE event_id=:id ORDER BY date DESC');
 		$query->bindParam(':id', $id);
 		$query->execute();
@@ -207,7 +207,7 @@ class DBConnection {
 
 	public function getBalanceForEvent($eventID) {
 		$expenses = $this->getAllExpensesForEvent($eventID);
-		$reimbursements = $this->getAllReimbursementsForEvent($eventID);
+		$reimbursements = $this->getAllDirectPaymentsForEvent($eventID);
 		$balance = array();
 		foreach ($expenses as $expense) {
 			$data = $this->getExpensesByUserForExpense($expense['transaction_id']);
@@ -291,10 +291,23 @@ class DBConnection {
 		$query->execute();
 	}
 
+	public function deleteDirectPaymentByID($id) {
+		$query = $this->connection->prepare('DELETE FROM t_reimbursement WHERE reimbursement_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+	}
+
 	public function roundAmountToCurrency($amount, $currencyCode) {
 		$amountValue = doubleval($amount);
 		$currency = $this->getCurrency($currencyCode);
 
 		return round($amountValue / $currency['rounding_multiple']) * $currency['rounding_multiple'];
+	}
+
+	public function getDirectPayment($id) {
+		$query = $this->connection->prepare('SELECT * FROM t_reimbursement WHERE reimbursement_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+		return $query->fetch(PDO::FETCH_ASSOC);
 	}
 }

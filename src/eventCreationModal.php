@@ -34,7 +34,7 @@
                     </div>
                     <div class="form-group">
                         <label for="eventCurrency">Currency for the event</label>
-                        <select name="eventCurrency" id="eventCurrency" class="form-control" required>
+                        <select name="eventCurrency" id="eventCurrency" class="custom-select form-control" required>
 							<?php
 							$currencies = DBConnection::getInstance()->getAllCurrencies();
 

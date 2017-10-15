@@ -23,6 +23,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		include 'deleteConfirmationModal.php';
 		?>
         <div id="expenseModalPlaceHolder"></div>
+        <div id="directPaymentModalPlaceHolder"></div>
     </div>
     <div class="col" id="content-right">
         <h1><?php echo $event['event_name']; ?></h1>
@@ -45,12 +46,14 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 			echo '<p>No expenses added to this event yet</p>';
 		}
 		echo '<h2>Latest direct payments</h2>';
-		$reimbursements = DBConnection::getInstance()->getAllReimbursementsForEvent($event['event_id']);
+		$reimbursements = DBConnection::getInstance()->getAllDirectPaymentsForEvent($event['event_id']);
 		//TODO display expendable list like expenses
 		if (count($reimbursements) > 0) {
 			echo '<ul class="list-group">';
 			foreach ($reimbursements as $reimbursement) {
-				echo '<li class="list-group-item list-group-item-action"><div class="row"><div class="col">' . $reimbursement['paying_username'] . ' => ' . $reimbursement['payed_username'] . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></li>';
+				$userPaying = DBConnection::getInstance()->getSingleUser($reimbursement['paying_username']);
+				$userPayed = DBConnection::getInstance()->getSingleUser($reimbursement['payed_username']);
+				echo '<button id="' . $reimbursement['reimbursement_id'] . '" class="list-group-item list-group-item-action direct-payment"><div class="row"><div class="col">' . $userPaying['first_name'] . ' ' . $userPaying['last_name'] . ' => ' . $userPayed['first_name'] . ' ' . $userPayed['last_name'] . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
 			}
 		} else {
 			echo '<p>No direct payments made</p>';
@@ -102,7 +105,6 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
             });
             $('.expense').click(function () {
                 let id = $(this).attr('id');
-                console.log(id);
                 $.ajax({
                     url: 'singleExpenseModal.php',
                     data: 'expense=' + id,
@@ -112,7 +114,20 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
                     },
                     type: 'GET',
                 });
-            })
+            });
+            $('.direct-payment').click(function () {
+                let id = $(this).attr('id');
+                console.log(id);
+                $.ajax({
+                    url: 'singleDirectPaymentModal.php',
+                    data: 'directPayment=' + id,
+                    success: (data) => {
+                        $('#directPaymentModalPlaceHolder').html(data);
+                        $('#singleDirectPaymentModal').modal()
+                    },
+                    type: 'GET',
+                })
+            });
         </script>
 		<?php
 
