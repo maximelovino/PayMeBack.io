@@ -39,7 +39,7 @@
 							$currencies = DBConnection::getInstance()->getAllCurrencies();
 
 							foreach ($currencies as $currency) {
-								echo '<option>' . $currency['currency_code'] . '</option>';
+								echo '<option value="' . $currency['currency_code'] . '">' . $currency['full_name'] . '</option>';
 							}
 							?>
                         </select>

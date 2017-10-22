@@ -10,7 +10,6 @@
             </div>
 			<?php
 			$redraw = isset($_SESSION['showExpenseModal']) && $_SESSION['showExpenseModal'];
-			$_SESSION['showExpenseModal'] = false;
 			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
 			?>
             <form action="events.php" method="post">
@@ -53,7 +52,9 @@
                         <div class="input-group">
                             <span class="input-group-addon"><?php echo $event['currency_code']; ?></span>
 							<?php
+							$currency = DBConnection::getInstance()->getCurrency($event['currency_code']);
 							$value = "";
+							$placeholder = $currency['rounding_multiple'] < 1 ? "0.00" : "0";
 							$class = "form-control";
 							if ($redraw) {
 								$value = $_SESSION['expenseAmount'];
@@ -61,7 +62,7 @@
 									$class .= " is-invalid";
 								}
 							}
-							echo '<input type="text" class="' . $class . '" name="expenseAmount" id="expenseAmount" placeholder="0.00" value="' . $value . '" required>'
+							echo '<input type="text" class="' . $class . '" name="expenseAmount" id="expenseAmount" placeholder="' . $placeholder . '" value="' . $value . '" required>'
 							?>
                         </div>
                     </div>

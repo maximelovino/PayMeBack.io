@@ -2,7 +2,7 @@
 
 /**
  * Class DBConnection
- * Singleton containing functions to retrieve data from the database
+ * Singleton containing functions to retrieve and transform data from the database
  */
 class DBConnection {
 	private $host = "localhost";
@@ -13,10 +13,16 @@ class DBConnection {
 	private $connection;
 	private static $instance = null;
 
+	/**
+	 * DBConnection private constructor.
+	 */
 	private function __construct() {
 		$this->connection = new PDO("mysql:host={$this->host};dbname={$this->dbName};charset={$this->charset}", $this->username, $this->password);
 	}
 
+	/**
+	 * @return DBConnection instance
+	 */
 	public static function getInstance() {
 		if (!self::$instance) {
 			self::$instance = new DBConnection();
@@ -24,16 +30,26 @@ class DBConnection {
 		return self::$instance;
 	}
 
+	/**
+	 * @return PDO connection of the instance
+	 */
 	public function getConnection() {
 		return $this->connection;
 	}
 
+	/**
+	 * @return array containing the list of all users from the database, each as an associative array
+	 */
 	public function getAllUsers() {
 		$query = $this->connection->prepare("SELECT * FROM t_users ORDER BY username");
 		$query->execute();
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $username string The username for which we want the list of events
+	 * @return array containing the list of events the user is part of, each as an associative array
+	 */
 	public function getAllEventsForUser($username) {
 		$query = $this->connection->prepare("SELECT * FROM t_group_membership JOIN t_events ON t_events.event_id = t_group_membership.event_id HAVING username=:username");
 		$query->bindParam(":username", $username);
@@ -41,10 +57,19 @@ class DBConnection {
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @return array containing the list of currencies available, each as an associative array
+	 */
 	public function getAllCurrencies() {
-		return $this->connection->query("SELECT * FROM t_currencies ORDER BY currency_code", PDO::FETCH_ASSOC);
+		$query = $this->connection->prepare("SELECT * FROM t_currencies ORDER BY currency_code");
+		$query->execute();
+		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $currencyCode string The currency code for a currency
+	 * @return mixed An associative array of all the fields of the currency in the DB
+	 */
 	public function getCurrency($currencyCode) {
 		$query = $this->connection->prepare("SELECT * FROM t_currencies WHERE currency_code=:code");
 		$query->bindParam(':code', $currencyCode);
@@ -52,6 +77,14 @@ class DBConnection {
 		return $query->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $title string The title of the event to insert
+	 * @param $description string The description of the event to insert
+	 * @param $users array An array of users participating in the event
+	 * @param $currency string The currency code for the event
+	 * @param $weights array An array of (user -> weight) specifying the weights of each user for the event
+	 * @return bool That specifies if the insertion was successful or not
+	 */
 	public function insertNewEvent($title, $description, $users, $currency, $weights) {
 		$this->connection->beginTransaction();
 		$eventInsertionSQL = 'INSERT INTO t_events VALUES (DEFAULT,:name,:desc,:currency)';
@@ -82,6 +115,16 @@ class DBConnection {
 		return true;
 	}
 
+	/**
+	 * @param $title string The title of the expense to insert
+	 * @param $description string The description of the expense to insert
+	 * @param $eventID int The ID of the event the expense is associated with
+	 * @param $amount double The amount of the expense to insert
+	 * @param $date string The date of the expense to insert in the format YYYY-MM-DD
+	 * @param $buyer string The username of the buyer
+	 * @param $involvedUsers array Array containing the usernames of the users involved
+	 * @return bool That specifies if the insertion was successful or not
+	 */
 	public function insertExpense($title, $description, $eventID, $amount, $date, $buyer, $involvedUsers) {
 		$this->connection->beginTransaction();
 		$expenseInsertionQuery = $this->connection->prepare("INSERT INTO t_expenses VALUES (DEFAULT , :title, :desc, :amount, :date, :buyer, :event)");
@@ -112,14 +155,22 @@ class DBConnection {
 		return true;
 	}
 
-	public function insertReimbursement($payingUser, $payedUser, $reimbursementEventID, $amount, $date) {
-		$reimbursementInsertionQuery = $this->connection->prepare("INSERT INTO t_reimbursement VALUES (DEFAULT, :paying, :payed, :event, :amount, :date)");
-		$reimbursementInsertionQuery->bindParam(':paying', $payingUser);
-		$reimbursementInsertionQuery->bindParam(':payed', $payedUser);
-		$reimbursementInsertionQuery->bindParam(':event', $reimbursementEventID);
-		$reimbursementInsertionQuery->bindParam(':amount', $amount);
-		$reimbursementInsertionQuery->bindParam(':date', $date);
-		return $reimbursementInsertionQuery->execute();
+	/**
+	 * @param $payingUser string Username of the user paying
+	 * @param $payedUser string Username of the user payed
+	 * @param $eventID int ID of the event
+	 * @param $amount double Amount of the payment
+	 * @param $date string Date of direct payment, in the format YYYY-MM-DD
+	 * @return bool That specifies if the insertion was successful or not
+	 */
+	public function insertDirectPayment($payingUser, $payedUser, $eventID, $amount, $date) {
+		$directPaymentQuery = $this->connection->prepare("INSERT INTO t_reimbursement VALUES (DEFAULT, :paying, :payed, :event, :amount, :date)");
+		$directPaymentQuery->bindParam(':paying', $payingUser);
+		$directPaymentQuery->bindParam(':payed', $payedUser);
+		$directPaymentQuery->bindParam(':event', $eventID);
+		$directPaymentQuery->bindParam(':amount', $amount);
+		$directPaymentQuery->bindParam(':date', $date);
+		return $directPaymentQuery->execute();
 	}
 
 	public function selectSingleEventByID($id) {
@@ -274,9 +325,17 @@ class DBConnection {
 	}
 
 	public function getTotalBalanceForUser($username) {
-		//TODO this should be separated by currency
 		$balanceByEvent = $this->getBalanceForEachEventForUser($username);
-		return array_sum($balanceByEvent);
+		$byCurrency = array();
+		foreach ($balanceByEvent as $key => $value) {
+			$event = $this->selectSingleEventByID($key);
+			$currencyCode = $event['currency_code'];
+			if (!isset($byCurrency[$currencyCode])) {
+				$byCurrency[$currencyCode] = 0;
+			}
+			$byCurrency[$currencyCode] += $value;
+		}
+		return $byCurrency;
 	}
 
 	public function deleteEventByID($id) {

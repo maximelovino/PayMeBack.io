@@ -133,6 +133,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 
 		if (isset($_SESSION['showExpenseModal']) && $_SESSION['showExpenseModal']) {
 			echo '<script type="text/javascript">$("#createExpenseModal").modal()</script>';
+			$_SESSION['showExpenseModal'] = false;
 		}
 		?>
     </div>

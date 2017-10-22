@@ -2,6 +2,9 @@
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
+if (isset($_SESSION['username'])) {
+	header('location:home.php');
+}
 require_once "DBConnection.php";
 require_once "DataValidator.php";
 $validUsername = true;

@@ -78,7 +78,7 @@ if (isset($_POST['newReimbursement'])) {
 	$usersDifferent = $payingUser != $payedUser;
 
 	if ($validReimbursementDate && $validReimbursementPayer && $validReimbursementPayed && $validReimbursementAmount && $usersDifferent) {
-		DBConnection::getInstance()->insertReimbursement($payingUser, $payedUser, $reimbursementEventID, $amount, $date);
+		DBConnection::getInstance()->insertDirectPayment($payingUser, $payedUser, $reimbursementEventID, $amount, $date);
 	} else {
 		//TODO show modal here
 	}

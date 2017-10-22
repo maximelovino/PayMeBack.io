@@ -36,12 +36,45 @@ if (!isset($_SESSION['username'])) {
 <body>
 <?php
 include "navbar.html";
+$eventsCount = count(DBConnection::getInstance()->getAllEventsForUser($_SESSION['username']));
+$balanceByCurrency = DBConnection::getInstance()->getTotalBalanceForUser($_SESSION['username']);
+$currencies = DBConnection::getInstance()->getAllCurrencies();
 ?>
 <div class="container mt-5">
     <div class="container mt-5" id="content">
-        <p class="lead">Hello world from home</p>
-        <p class="lead">Total balance
-            is <?php echo DBConnection::getInstance()->getTotalBalanceForUser($_SESSION['username']); ?></p>
+        <h1 class="display-3">Welcome to PayMeBack.io</h1>
+		<?php if ($eventsCount > 0): ?>
+            <p class="lead">You have <a href="events.php"><?php echo $eventsCount ?> events</a> for a total balance of:
+            </p>
+            <div class="row">
+                <div class="col-auto">
+                    <p>View total as <select id="currencySelector" class="custom-select"><?php
+							foreach ($currencies as $currency)
+								echo '<option data-round="' . $currency['rounding_multiple'] . '" value="' . $currency['currency_code'] . '">' . $currency['full_name'] . '</option>';
+							?> </select></p>
+                </div>
+
+                <div class="col">
+                    <ul class="list-group">
+						<?php
+						foreach ($balanceByCurrency as $key => $value) {
+							$classToAdd = $value < 0 ? ' text-danger' : ($value == 0 ? '' : ' text-success');
+							echo '<li class="list-group-item"><div class="row"><div id="' . $key . '" class="balanceAmount col' . $classToAdd . '">' . $value . '</div><div class="col-auto">' . $key . '</div></div></li>';
+						}
+						?>
+                    </ul>
+                    <div class="row h4 mt-2">
+                        <div class="col">Total</div>
+                        <div id="singleCurrencyAmountPlaceHolder" class="col-auto"></div>
+                    </div>
+                </div>
+            </div>
+		<?php else: ?>
+            <div class="row">
+                <p class="lead col-auto">You don't have any events at the moment, create some events</p>
+                <a href="events.php" class="btn btn-primary col-auto">Go to events page</a>
+            </div>
+		<?php endif; ?>
     </div>
 </div>
 <?php
@@ -49,6 +82,44 @@ include "footer.html"
 ?>
 <script type="text/javascript">
     $("#homeLink").toggleClass("active");
+
+    const currencySelect = document.querySelector('#currencySelector');
+    const amountPlaceHolder = document.querySelector('#singleCurrencyAmountPlaceHolder');
+
+    function balanceInOneCurrency() {
+        const amounts = Array.from(document.querySelectorAll('.balanceAmount'));
+        const destCurrency = currencySelect.value;
+        const rounding = parseFloat(currencySelect.options[currencySelect.selectedIndex].dataset.round);
+        console.log(rounding);
+        let sum = 0;
+        let calls = 0;
+        amounts.forEach((amountDiv) => {
+            const amount = parseFloat(amountDiv.innerText);
+            const currency = amountDiv.getAttribute('id');
+            if (currency == destCurrency) {
+                sum += amount;
+                sum = Math.ceil(sum / rounding) * rounding;
+                amountPlaceHolder.innerText = `${sum.toFixed(2)} ${destCurrency}`;
+            } else {
+                let request = new Request(`http://api.fixer.io/latest?base=${currency}&symbols=${destCurrency}`);
+                calls++;
+                fetch(request).then((response) => response.json()).then((res) => {
+                    console.log(res);
+                    const rate = parseFloat(res.rates[destCurrency]);
+                    const newAmount = amount * rate;
+                    console.log(amount, rate, newAmount);
+                    sum += newAmount;
+                    sum = Math.ceil(sum / rounding) * rounding;
+                    calls--;
+                    if (calls === 0) amountPlaceHolder.innerText = `${sum.toFixed(2)} ${destCurrency}`;
+                });
+            }
+        });
+    }
+
+    currencySelect.onchange = balanceInOneCurrency;
+
+    balanceInOneCurrency();
 </script>
 
 </body>
