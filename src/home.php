@@ -44,7 +44,10 @@ $currencies = DBConnection::getInstance()->getAllCurrencies();
     <div class="container mt-5" id="content">
         <h1 class="display-3">Welcome to PayMeBack.io</h1>
 		<?php if ($eventsCount > 0): ?>
-            <p class="lead">You have <a href="events.php"><?php echo $eventsCount ?> events</a> for a total balance of:
+            <p class="lead">You have <a
+                        href="events.php"><?php echo $eventsCount . ' event' . ($eventsCount > 1 ? 's' : ''); ?></a> for
+                a
+                total balance of:
             </p>
             <div class="row">
                 <div class="col-auto">
@@ -58,8 +61,10 @@ $currencies = DBConnection::getInstance()->getAllCurrencies();
                     <ul class="list-group">
 						<?php
 						foreach ($balanceByCurrency as $key => $value) {
-							$classToAdd = $value < 0 ? ' text-danger' : ($value == 0 ? '' : ' text-success');
-							echo '<li class="list-group-item"><div class="row"><div id="' . $key . '" class="balanceAmount col' . $classToAdd . '">' . $value . '</div><div class="col-auto">' . $key . '</div></div></li>';
+							if ($value != 0) {
+								$classToAdd = $value < 0 ? ' text-danger' : ' text-success';
+								echo '<li class="list-group-item"><div class="row"><div id="' . $key . '" class="balanceAmount col' . $classToAdd . '">' . $value . '</div><div class="col-auto">' . $key . '</div></div></li>';
+							}
 						}
 						?>
                     </ul>
@@ -70,10 +75,8 @@ $currencies = DBConnection::getInstance()->getAllCurrencies();
                 </div>
             </div>
 		<?php else: ?>
-            <div class="row">
-                <p class="lead col-auto">You don't have any events at the moment, create some events</p>
-                <a href="events.php" class="btn btn-primary col-auto">Go to events page</a>
-            </div>
+            <p class="lead">You don't have any events at the moment, create some events. <a href="events.php">Go to
+                    events page</a></p>
 		<?php endif; ?>
     </div>
 </div>
@@ -93,6 +96,7 @@ include "footer.html"
         console.log(rounding);
         let sum = 0;
         let calls = 0;
+        amountPlaceHolder.innerText = `${sum.toFixed(2)} ${destCurrency}`;
         amounts.forEach((amountDiv) => {
             const amount = parseFloat(amountDiv.innerText);
             const currency = amountDiv.getAttribute('id');

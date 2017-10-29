@@ -31,6 +31,8 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
         <h2>Latest expenses</h2>
 		<?php
 		$expenses = DBConnection::getInstance()->getAllExpensesForEvent($event['event_id']);
+		$byUser = DBConnection::getInstance()->getAllExpensesForEventByUser($event['event_id']);
+		$total = array_sum($byUser);
 		echo '<ul class="list-group">';
 		$count = 0;
 		foreach ($expenses as $expense) {
@@ -41,10 +43,16 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		}
 		echo '</ul>';
 		if ($count > 3) {
-			echo '<a href="#" id="showMoreLink">Show more expenses</a>';
+			echo '<div class="mt-2"><a href="#" id="showMoreLink">Show more expenses</a></div>';
 		} elseif ($count == 0) {
 			echo '<p>No expenses added to this event yet</p>';
 		}
+		echo '<ul class="list-group mt-2">';
+		echo '<strong><li class="list-group-item list-group-item-dark"><div class="row"><div class="col">TOTAL</div><div class="col-auto">' . $total . ' ' . $event['currency_code'] . '</div></div></li></strong>';
+		echo '</ul>';
+		echo '<h2>Payments by user</h2>';
+
+		print_r($byUser);
 		echo '<h2>Latest direct payments</h2>';
 		$reimbursements = DBConnection::getInstance()->getAllDirectPaymentsForEvent($event['event_id']);
 		//TODO display expendable list like expenses

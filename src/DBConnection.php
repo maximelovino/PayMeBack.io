@@ -227,6 +227,19 @@ class DBConnection {
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	public function getAllExpensesForEventByUser($id) {
+		$expenses = $this->getAllExpensesForEvent($id);
+		$byUser = array();
+		foreach ($expenses as $expense) {
+			$buyer = $expense['buyer_username'];
+			if (!isset($byUser[$buyer])) {
+				$byUser[$buyer] = 0;
+			}
+			$byUser[$buyer] += $expense['amount'];
+		}
+		return $byUser;
+	}
+
 	public function getAllDirectPaymentsForEvent($id) {
 		$query = $this->connection->prepare('SELECT * FROM t_reimbursement WHERE event_id=:id ORDER BY date DESC');
 		$query->bindParam(':id', $id);
