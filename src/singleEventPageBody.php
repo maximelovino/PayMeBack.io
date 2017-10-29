@@ -55,13 +55,19 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		print_r($byUser);
 		echo '<h2>Latest direct payments</h2>';
 		$reimbursements = DBConnection::getInstance()->getAllDirectPaymentsForEvent($event['event_id']);
-		//TODO display expendable list like expenses
+		$directCount = 0;
 		if (count($reimbursements) > 0) {
 			echo '<ul class="list-group">';
 			foreach ($reimbursements as $reimbursement) {
+				$classToAdd = $directCount > 2 ? " removable" : "";
+				$displayToAdd = $directCount > 2 ? 'style="display: none"' : '';
 				$userPaying = DBConnection::getInstance()->getSingleUser($reimbursement['paying_username']);
 				$userPayed = DBConnection::getInstance()->getSingleUser($reimbursement['payed_username']);
-				echo '<button id="' . $reimbursement['reimbursement_id'] . '" class="list-group-item list-group-item-action direct-payment"><div class="row"><div class="col">' . $userPaying['first_name'] . ' ' . $userPaying['last_name'] . ' => ' . $userPayed['first_name'] . ' ' . $userPayed['last_name'] . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
+				echo '<button id="' . $reimbursement['reimbursement_id'] . '" class="list-group-item list-group-item-action direct-payment' . $classToAdd . '" ' . $displayToAdd . '><div class="row"><div class="col">' . $userPaying['first_name'] . ' ' . $userPaying['last_name'] . ' => ' . $userPayed['first_name'] . ' ' . $userPayed['last_name'] . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
+				$directCount++;
+			}
+			if ($directCount > 3) {
+				echo '<div class="mt-2"><a href="#" id="showMoreDirectLink">Show more direct payments</a></div>';
 			}
 		} else {
 			echo '<p>No direct payments made</p>';
@@ -105,11 +111,20 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '</table>';
 		?>
         <script type="text/javascript">
-            let hidden = true;
+            let hiddenExpense = true;
+            let hiddenDirect = true;
             $('#showMoreLink').click(function () {
-                $(".removable").toggle();
-                hidden = !hidden;
-                $('#showMoreLink').html(hidden ? "Show more expenses" : "Show less expenses");
+                console.log("EXPENSE CLICK");
+                $(".expense.removable").toggle();
+                hiddenExpense = !hiddenExpense;
+                $('#showMoreLink').html(hiddenExpense ? "Show more expenses" : "Show less expenses");
+            });
+
+            $('#showMoreDirectLink').click(function () {
+                console.log("DIRECT CLICK");
+                $(".direct-payment.removable").toggle();
+                hiddenDirect = !hiddenDirect;
+                $('#showMoreDirectLink').html(hiddenDirect ? "Show more direct payments" : "Show less direct payments");
             });
             $('.expense').click(function () {
                 let id = $(this).attr('id');
