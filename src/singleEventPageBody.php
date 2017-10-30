@@ -32,7 +32,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		<?php
 		$expenses = DBConnection::getInstance()->getAllExpensesForEvent($event['event_id']);
 		$byUser = DBConnection::getInstance()->getAllExpensesForEventByUser($event['event_id']);
-		$total = array_sum($byUser);
+		$total = DBConnection::getInstance()->getTotalExpenseForEvent($event['event_id']);
 		echo '<ul class="list-group">';
 		$count = 0;
 		foreach ($expenses as $expense) {
@@ -52,7 +52,12 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '</ul>';
 		echo '<h2>Payments by user</h2>';
 
-		print_r($byUser);
+		echo '<ul class="list-group">';
+		foreach ($byUser as $userTotal) {
+			$user = DBConnection::getInstance()->getSingleUser($userTotal['buyer_username']);
+			echo '<li class="list-group-item"><div class="row"><div class="col">' . $user['first_name'] . ' ' . $user['last_name'] . '</div><div class="col-auto">' . $userTotal['sum'] . ' ' . $event['currency_code'] . '</div></div></li>';
+		}
+		echo '</ul>';
 		echo '<h2>Latest direct payments</h2>';
 		$reimbursements = DBConnection::getInstance()->getAllDirectPaymentsForEvent($event['event_id']);
 		$directCount = 0;

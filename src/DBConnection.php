@@ -228,16 +228,11 @@ class DBConnection {
 	}
 
 	public function getAllExpensesForEventByUser($id) {
-		$expenses = $this->getAllExpensesForEvent($id);
-		$byUser = array();
-		foreach ($expenses as $expense) {
-			$buyer = $expense['buyer_username'];
-			if (!isset($byUser[$buyer])) {
-				$byUser[$buyer] = 0;
-			}
-			$byUser[$buyer] += $expense['amount'];
-		}
-		return $byUser;
+		$query = $this->connection->prepare('SELECT buyer_username, sum(amount) AS sum FROM t_expenses WHERE event_id=:id GROUP BY buyer_username ORDER BY sum DESC;');
+		$query->bindParam(':id', $id);
+		$query->execute();
+		$expenses = $query->fetchAll(PDO::FETCH_ASSOC);
+		return $expenses;
 	}
 
 	public function getAllDirectPaymentsForEvent($id) {
@@ -381,5 +376,12 @@ class DBConnection {
 		$query->bindParam(':id', $id);
 		$query->execute();
 		return $query->fetch(PDO::FETCH_ASSOC);
+	}
+
+	public function getTotalExpenseForEvent($id) {
+		$query = $this->connection->prepare('SELECT sum(amount) AS sum FROM t_expenses GROUP BY event_id HAVING event_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+		return $query->fetch()['sum'];
 	}
 }
