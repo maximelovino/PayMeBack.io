@@ -99,7 +99,7 @@
 							} else {
 								echo '<option value="' . $person['username'] . '">';
 							}
-							echo $person['first_name'] . ' ' . $person['last_name'] . '</option>';
+							echo DBConnection::getInstance()->getFullNameForUser($person['username']) . '</option>';
 						}
 						echo '</select>';
 						?>
@@ -111,7 +111,7 @@
 							echo '<div class="form-check">';
 							echo '<label class="form-check-label">';
 							echo '<input class="form-check-input" type="checkbox" name=check-' . $person['username'] . ' checked>';
-							echo '&nbsp' . $person['first_name'] . ' ' . $person['last_name'];
+							echo '&nbsp' . DBConnection::getInstance()->getFullNameForUser($person['username']);
 							echo '</label>';
 							echo '</div>';
 						}

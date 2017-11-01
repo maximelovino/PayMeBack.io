@@ -27,9 +27,9 @@ if (isset($_POST['signup'])) {
 	if ($validEmail && $validLastName && $validFirstName && $validUsername) {
 		$hash = password_hash($password, PASSWORD_DEFAULT);
 
-		if (!($username == '' || $password == '')) {
-			$result = DBConnection::getInstance()->getUsersMatching($username);
-			if (count($result) > 0) {
+		if (!($password == '')) {
+			$result = DBConnection::getInstance()->getSingleUser($username);
+			if ($result != null) {
 				//username already taken
 				echo '<br><div class="alert alert-danger" role="alert">';
 				echo 'Username ' . $username . ' already taken';

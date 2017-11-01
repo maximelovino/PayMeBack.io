@@ -173,6 +173,10 @@ class DBConnection {
 		return $directPaymentQuery->execute();
 	}
 
+	/**
+	 * @param $id int The id of the event we want to select
+	 * @return mixed An associative array of all the fields in the event
+	 */
 	public function selectSingleEventByID($id) {
 		$eventQuery = $this->connection->prepare('SELECT * FROM t_events WHERE event_id=:event');
 		$eventQuery->bindParam(':event', $id);
@@ -181,6 +185,10 @@ class DBConnection {
 		return $event;
 	}
 
+	/**
+	 * @param $event_id int The id of the event to search
+	 * @return array An array of all the users participating in the event
+	 */
 	public function selectUsersForEvent($event_id) {
 		$peopleQuery = $this->connection->prepare('SELECT * FROM t_group_membership JOIN t_users ON t_group_membership.username = t_users.username WHERE event_id=:id');
 		$peopleQuery->bindParam(':id', $event_id);
@@ -188,6 +196,14 @@ class DBConnection {
 		return $peopleQuery->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $username string The username of the user to insert
+	 * @param $first_name string The first name of the user to insert
+	 * @param $last_name string The last name of the user to insert
+	 * @param $email string The email of the user to insert
+	 * @param $password_hash string The hash of the password of the user to insert
+	 * @return bool That specifies if the insertion was successful or not
+	 */
 	public function insertNewUser($username, $first_name, $last_name, $email, $password_hash) {
 		$insertion = $this->connection->prepare('INSERT INTO t_users VALUES (:username,:first_name,:last_name,:email,:password)');
 		$insertion->bindParam(':username', $username);
@@ -198,13 +214,10 @@ class DBConnection {
 		return $insertion->execute();
 	}
 
-	public function getUsersMatching($username) {
-		$records = $this->connection->prepare('SELECT * FROM t_users WHERE username= :uname');
-		$records->bindParam(':uname', $username);
-		$records->execute();
-		return $records->fetchAll();
-	}
-
+	/**
+	 * @param $username string The username to select
+	 * @return mixed The associative array containing the fields of the user
+	 */
 	public function getSingleUser($username) {
 		$records = $this->connection->prepare('SELECT * FROM t_users WHERE username= :uname');
 		$records->bindParam(':uname', $username);
@@ -212,6 +225,11 @@ class DBConnection {
 		return $records->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $username string The username entered
+	 * @param $password string The password entered
+	 * @return bool To specify if the login is correct
+	 */
 	public function loginOK($username, $password) {
 		$record = $this->connection->prepare('SELECT username, password FROM t_users WHERE username= :username');
 		$record->bindParam(':username', $username);
@@ -220,6 +238,10 @@ class DBConnection {
 		return count($result) > 0 && password_verify($password, $result['password']);
 	}
 
+	/**
+	 * @param $id int The event id to search for
+	 * @return array An array of all the expenses associated with that event
+	 */
 	public function getAllExpensesForEvent($id) {
 		$query = $this->connection->prepare('SELECT * FROM t_expenses WHERE event_id=:id ORDER BY date DESC');
 		$query->bindParam(':id', $id);
@@ -227,6 +249,10 @@ class DBConnection {
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $id int The event id to search for
+	 * @return array An associative array of the arrays of expenses done by each user for that event
+	 */
 	public function getAllExpensesForEventByUser($id) {
 		$query = $this->connection->prepare('SELECT buyer_username, sum(amount) AS sum FROM t_expenses WHERE event_id=:id GROUP BY buyer_username ORDER BY sum DESC;');
 		$query->bindParam(':id', $id);
@@ -235,6 +261,10 @@ class DBConnection {
 		return $expenses;
 	}
 
+	/**
+	 * @param $id int The event id to search for
+	 * @return array An array of all the direct payments associated with that event
+	 */
 	public function getAllDirectPaymentsForEvent($id) {
 		$query = $this->connection->prepare('SELECT * FROM t_reimbursement WHERE event_id=:id ORDER BY date DESC');
 		$query->bindParam(':id', $id);
@@ -242,6 +272,10 @@ class DBConnection {
 		return $query->fetchAll(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $transaction_id int The expense id to search for
+	 * @return array An associative array of what each user involved owes for that expense
+	 */
 	public function getExpensesByUserForExpense($transaction_id) {
 		$query = $this->connection->prepare('SELECT * FROM t_expenses JOIN t_expense_membership ON t_expenses.transaction_id = t_expense_membership.transaction_id  JOIN t_coeffsByTransaction ON t_coeffsByTransaction.transaction_id = t_expenses.transaction_id JOIN t_group_membership ON t_group_membership.username = t_expense_membership.username AND t_group_membership.event_id = t_expenses.event_id JOIN t_events ON t_expenses.event_id = t_events.event_id JOIN t_currencies ON t_events.currency_code = t_currencies.currency_code WHERE t_expenses.transaction_id=:id;');
 		$query->bindParam(':id', $transaction_id);
@@ -257,6 +291,10 @@ class DBConnection {
 		return $balance;
 	}
 
+	/**
+	 * @param $transaction_id int the expense id to search for
+	 * @return mixed An associative array of the fields of that expense
+	 */
 	public function getSingleExpenseDetail($transaction_id) {
 		$query = $this->connection->prepare('SELECT * FROM t_expenses WHERE transaction_id=:id');
 		$query->bindParam(':id', $transaction_id);
@@ -264,6 +302,10 @@ class DBConnection {
 		return $query->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $eventID int The event id to balance
+	 * @return array An associative array that for each user specifies an associative array of what he owes to every other user
+	 */
 	public function getBalanceForEvent($eventID) {
 		$expenses = $this->getAllExpensesForEvent($eventID);
 		$reimbursements = $this->getAllDirectPaymentsForEvent($eventID);
@@ -317,6 +359,10 @@ class DBConnection {
 		return $balance;
 	}
 
+	/**
+	 * @param $username string The username for which to get every balance
+	 * @return array An associative of every event_id of the user and its balance for that event
+	 */
 	public function getBalanceForEachEventForUser($username) {
 		$events = $this->getAllEventsForUser($username);
 		$balance = array();
@@ -332,6 +378,10 @@ class DBConnection {
 		return $balance;
 	}
 
+	/**
+	 * @param $username string The username for which to get total balance
+	 * @return array An associative array of the balance of the user for each currency
+	 */
 	public function getTotalBalanceForUser($username) {
 		$balanceByEvent = $this->getBalanceForEachEventForUser($username);
 		$byCurrency = array();
@@ -346,31 +396,10 @@ class DBConnection {
 		return $byCurrency;
 	}
 
-	public function deleteEventByID($id) {
-		$query = $this->connection->prepare('DELETE FROM t_events WHERE event_id=:id');
-		$query->bindParam(':id', $id);
-		$query->execute();
-	}
-
-	public function deleteExpenseByID($id) {
-		$query = $this->connection->prepare('DELETE FROM t_expenses WHERE transaction_id=:id');
-		$query->bindParam(':id', $id);
-		$query->execute();
-	}
-
-	public function deleteDirectPaymentByID($id) {
-		$query = $this->connection->prepare('DELETE FROM t_reimbursement WHERE reimbursement_id=:id');
-		$query->bindParam(':id', $id);
-		$query->execute();
-	}
-
-	public function roundAmountToCurrency($amount, $currencyCode) {
-		$amountValue = doubleval($amount);
-		$currency = $this->getCurrency($currencyCode);
-
-		return round($amountValue / $currency['rounding_multiple']) * $currency['rounding_multiple'];
-	}
-
+	/**
+	 * @param $id int The id of the direct payment to select
+	 * @return mixed An associative array of all the fields of that direct payment
+	 */
 	public function getDirectPayment($id) {
 		$query = $this->connection->prepare('SELECT * FROM t_reimbursement WHERE reimbursement_id=:id');
 		$query->bindParam(':id', $id);
@@ -378,12 +407,67 @@ class DBConnection {
 		return $query->fetch(PDO::FETCH_ASSOC);
 	}
 
+	/**
+	 * @param $id int The id of the event to search for
+	 * @return float The total of the expenses of the event
+	 */
 	public function getTotalExpenseForEvent($id) {
 		$query = $this->connection->prepare('SELECT sum(amount) AS sum FROM t_expenses GROUP BY event_id HAVING event_id=:id');
 		$query->bindParam(':id', $id);
 		$query->execute();
-		return $query->fetch()['sum'];
+		$total = $query->fetch()['sum'];
+		if ($total != null) {
+			return $total;
+		} else {
+			return 0;
+		}
 	}
 
-	//TODO Function to get full name from username (full name being first_name with space and last_name
+	/**
+	 * @param $id int The id of the event to delete
+	 */
+	public function deleteEventByID($id) {
+		$query = $this->connection->prepare('DELETE FROM t_events WHERE event_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+	}
+
+	/**
+	 * @param $id int The id of the expense to delete
+	 */
+	public function deleteExpenseByID($id) {
+		$query = $this->connection->prepare('DELETE FROM t_expenses WHERE transaction_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+	}
+
+	/**
+	 * @param $id int The id of the direct payment to delete
+	 */
+	public function deleteDirectPaymentByID($id) {
+		$query = $this->connection->prepare('DELETE FROM t_reimbursement WHERE reimbursement_id=:id');
+		$query->bindParam(':id', $id);
+		$query->execute();
+	}
+
+	/**
+	 * @param $amount float The original amount
+	 * @param $currencyCode string The currency code
+	 * @return float The rounded amount of the given amount
+	 */
+	public function roundAmountToCurrency($amount, $currencyCode) {
+		$amountValue = doubleval($amount);
+		$currency = $this->getCurrency($currencyCode);
+
+		return round($amountValue / $currency['rounding_multiple']) * $currency['rounding_multiple'];
+	}
+
+	/**
+	 * @param $username string The username we're looking for
+	 * @return string Containing the full name of the user
+	 */
+	public function getFullNameForUser($username) {
+		$user = $this->getSingleUser($username);
+		return $user['first_name'] . ' ' . $user['last_name'];
+	}
 }

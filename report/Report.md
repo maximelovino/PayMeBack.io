@@ -40,9 +40,17 @@ Cette vue a été créé pour pouvoir accéder facilement à la somme des coeffi
 
 ## Structure du projet
 
+Etant donné l'envergure assez restreinte de ce projet, j'ai décidé de ne pas faire de MVC ni spécialement d'utiliser l'orienté objet de PHP pour les données à traiter. Je n'ai également pas utilisé de frameworks ou de générateurs de code et ai tout fait "from scratch" à l'exception du CSS qui vient de Bootstrap.
+
+Deux classes ont été réalisées uniquement.
+
 ### DBConnection.php
 
+Il s'agit ici d'une classe suivant le pattern singleton et fournissant une instance de connexion à notre base de données sur laquelle on pourra appeler des fonctions pour récupérer des informations à partir des différentes tables de la base. Cette classe contient toutes les interactions de récupération de données depuis la BDD.
+
 ### DataValidator.php
+
+Il s'agit ici d'une classe non instantiable contenant uniquement des fonctions statiques servant à la validation des données à la réception des formulaires. Cette classe contient donc des fonction qui vérifient la validité des données saisies à l'aide de RegEx ainsi que leur logique en interrogeant la BDD, par exemple pour vérifier qu'un utilisateur a accès à un certain événement.
 
 ### API fixer.io et page d'accueil
 
@@ -50,7 +58,7 @@ Cette vue a été créé pour pouvoir accéder facilement à la somme des coeffi
 
 ## Marche à suivre pour l'utilisateur
 
-## Déployement
+## Déploiement
 
 Tout d'abord, sur une machine linux, il faudra installer Apache et MySQL avec la commande:
 

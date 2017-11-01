@@ -21,9 +21,9 @@
 							<?php
 							foreach ($people as $user) {
 								if ($user['username'] == $_SESSION['username']) {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '" selected>' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
+									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '" selected>' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
 								} else {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
+									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
 								}
 							}
 							?>
@@ -35,9 +35,9 @@
 							<?php
 							foreach ($people as $user) {
 								if ($user['username'] == $_SESSION['username']) {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
+									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
 								} else {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . $user['first_name'] . ' ' . $user['last_name'] . '</option>';
+									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
 								}
 							}
 							?>

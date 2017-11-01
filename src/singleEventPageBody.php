@@ -31,7 +31,6 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
         <h2>Latest expenses</h2>
 		<?php
 		$expenses = DBConnection::getInstance()->getAllExpensesForEvent($event['event_id']);
-		$byUser = DBConnection::getInstance()->getAllExpensesForEventByUser($event['event_id']);
 		$total = DBConnection::getInstance()->getTotalExpenseForEvent($event['event_id']);
 		echo '<ul class="list-group">';
 		$count = 0;
@@ -51,11 +50,14 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '<strong><li class="list-group-item list-group-item-dark"><div class="row"><div class="col">TOTAL</div><div class="col-auto">' . $total . ' ' . $event['currency_code'] . '</div></div></li></strong>';
 		echo '</ul>';
 		echo '<h2>Payments by user</h2>';
-
+		$byUser = DBConnection::getInstance()->getAllExpensesForEventByUser($event['event_id']);
+		if ($byUser == null) {
+			echo 'No expenses added to this event yet';
+		}
 		echo '<ul class="list-group">';
 		foreach ($byUser as $userTotal) {
-			$user = DBConnection::getInstance()->getSingleUser($userTotal['buyer_username']);
-			echo '<li class="list-group-item"><div class="row"><div class="col">' . $user['first_name'] . ' ' . $user['last_name'] . '</div><div class="col-auto">' . $userTotal['sum'] . ' ' . $event['currency_code'] . '</div></div></li>';
+			$fullName = DBConnection::getInstance()->getFullNameForUser($userTotal['buyer_username']);
+			echo '<li class="list-group-item"><div class="row"><div class="col">' . $fullName . '</div><div class="col-auto">' . $userTotal['sum'] . ' ' . $event['currency_code'] . '</div></div></li>';
 		}
 		echo '</ul>';
 		echo '<h2>Latest direct payments</h2>';
@@ -66,9 +68,9 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 			foreach ($reimbursements as $reimbursement) {
 				$classToAdd = $directCount > 2 ? " removable" : "";
 				$displayToAdd = $directCount > 2 ? 'style="display: none"' : '';
-				$userPaying = DBConnection::getInstance()->getSingleUser($reimbursement['paying_username']);
-				$userPayed = DBConnection::getInstance()->getSingleUser($reimbursement['payed_username']);
-				echo '<button id="' . $reimbursement['reimbursement_id'] . '" class="list-group-item list-group-item-action direct-payment' . $classToAdd . '" ' . $displayToAdd . '><div class="row"><div class="col">' . $userPaying['first_name'] . ' ' . $userPaying['last_name'] . ' => ' . $userPayed['first_name'] . ' ' . $userPayed['last_name'] . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
+				$userPaying = DBConnection::getInstance()->getFullNameForUser($reimbursement['paying_username']);
+				$userPayed = DBConnection::getInstance()->getFullNameForUser($reimbursement['payed_username']);
+				echo '<button id="' . $reimbursement['reimbursement_id'] . '" class="list-group-item list-group-item-action direct-payment' . $classToAdd . '" ' . $displayToAdd . '><div class="row"><div class="col">' . $userPaying . ' => ' . $userPayed . '</div><div class="col-auto">' . $reimbursement['amount'] . ' ' . $event['currency_code'] . '</div></div></button>';
 				$directCount++;
 			}
 			if ($directCount > 3) {
@@ -86,7 +88,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 		echo '<tr>';
 		echo '<th></th>';
 		foreach ($users as $user) {
-			echo '<th>' . $user['first_name'] . ' ' . $user['last_name'] . '</th>';
+			echo '<th>' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</th>';
 		}
 		echo '</tr>';
 		for ($i = 0; $i < count($users); $i++) {
@@ -94,7 +96,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 			for ($j = 0; $j <= count($users); $j++) {
 				echo '<th>';
 				if ($j == 0) {
-					echo $users[$i]['first_name'] . ' ' . $users[$i]['last_name'];
+					echo DBConnection::getInstance()->getFullNameForUser($users[$i]['username']);
 				} else {
 					if ($i == $j - 1) {
 						echo "-";

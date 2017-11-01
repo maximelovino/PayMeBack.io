@@ -28,7 +28,6 @@ $validCurrency = true;
 $validWeights = array();
 $validUsers = array();
 $validUserArray = true;
-//TODO use session instead of this variable
 $showModal = false;
 
 if (isset($_POST['newEvent'])) {
