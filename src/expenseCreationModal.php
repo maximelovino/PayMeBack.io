@@ -77,9 +77,8 @@
 								$class .= " is-invalid";
 							}
 						}
-						echo '<input type="text" value="' . $value . '" class="' . $class . '" id="expenseDate" name="expenseDate" required>'
+						echo '<input type="date" value="' . $value . '" class="' . $class . '" id="expenseDate" name="expenseDate" required>'
 						?>
-                        <small id="dateFormatHelp" class="form-text text-muted">Use format YYYY-mm-dd for dates</small>
                     </div>
                     <div class="form-group">
                         <label for="expenseMaker">Who paid for it?</label>

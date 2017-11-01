@@ -7,7 +7,7 @@
 class DBConnection {
 	private $host = "localhost";
 	private $username = "php";
-	private $password = "3eXLjcN5PQXv39Vd";
+	private $password = "";
 	private $dbName = "petits_comptes_entre_amis";
 	private $charset = "utf8";
 	private $connection;
@@ -384,4 +384,6 @@ class DBConnection {
 		$query->execute();
 		return $query->fetch()['sum'];
 	}
+
+	//TODO Function to get full name from username (full name being first_name with space and last_name
 }

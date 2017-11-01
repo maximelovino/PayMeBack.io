@@ -57,9 +57,8 @@
                     </div>
                     <div class="form-group">
                         <label for="date">Date of the expense</label>
-                        <input type="text" value="<?php echo date('Y-m-d') ?>" class="form-control" id="date"
+                        <input type="date" value="<?php echo date('Y-m-d') ?>" class="form-control" id="date"
                                name="date" required>
-                        <small id="dateFormatHelp" class="form-text text-muted">Use format YYYY-mm-dd for dates</small>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

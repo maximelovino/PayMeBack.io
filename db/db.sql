@@ -1,172 +1,272 @@
-create table t_currencies
-(
-  currency_code     VARCHAR(3)   NOT NULL
-    PRIMARY KEY,
-  rounding_multiple DOUBLE       NOT NULL,
-  full_name         VARCHAR(256) NOT NULL,
-  CONSTRAINT t_currencies_currency_code_uindex
-  UNIQUE (currency_code)
-)
-;
+-- phpMyAdmin SQL Dump
+-- version 4.7.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: Oct 31, 2017 at 08:29 PM
+-- Server version: 5.6.35
+-- PHP Version: 7.1.8
 
-create table t_events
-(
-  event_id          INT AUTO_INCREMENT
-    PRIMARY KEY,
-  event_name        VARCHAR(256) NOT NULL,
-  event_description TEXT         NULL,
-  currency_code     VARCHAR(3)   NOT NULL,
-  CONSTRAINT t_events_event_id_uindex
-  UNIQUE (event_id),
-  CONSTRAINT t_events_t_currencies_currency_code_fk
-  FOREIGN KEY (currency_code) REFERENCES t_currencies (currency_code)
-)
-;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
-create index t_events_t_currencies_currency_code_fk
-  ON t_events (currency_code)
-;
+--
+-- Database: `petits_comptes_entre_amis`
+--
+CREATE DATABASE IF NOT EXISTS `petits_comptes_entre_amis` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `petits_comptes_entre_amis`;
 
-create table t_expense_membership
-(
-  transaction_id INT          NOT NULL,
-  username       VARCHAR(256) NOT NULL,
-  PRIMARY KEY (transaction_id, username)
-)
-;
+-- --------------------------------------------------------
 
-CREATE INDEX t_expense_membership_t_users_username_fk
-  ON t_expense_membership (username)
-;
-
-create table t_expenses
-(
-  transaction_id INT AUTO_INCREMENT
-    PRIMARY KEY,
-  title          VARCHAR(256) NOT NULL,
-  description    TEXT         NULL,
-  amount         DOUBLE       NOT NULL,
-  date           DATE         NOT NULL,
-  buyer_username VARCHAR(256) NOT NULL,
-  event_id       INT          NOT NULL,
-  CONSTRAINT t_expenses_transaction_id_uindex
-  UNIQUE (transaction_id),
-  CONSTRAINT t_expenses_t_events_event_id_fk
-  FOREIGN KEY (event_id) REFERENCES t_events (event_id)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-)
-;
-
-create index t_expenses_t_events_event_id_fk
-  ON t_expenses (event_id)
-;
-
-create index t_expenses_t_users_username_fk
-  ON t_expenses (buyer_username)
-;
-
-alter table t_expense_membership
-  ADD CONSTRAINT t_expense_membership_t_expenses_transaction_id_fk
-FOREIGN KEY (transaction_id) REFERENCES t_expenses (transaction_id)
-  ON UPDATE CASCADE
-  ON DELETE CASCADE
-;
-
-create table t_group_membership
-(
-  username    VARCHAR(256)    NOT NULL,
-  event_id    INT             NOT NULL,
-  coefficient INT DEFAULT '1' NOT NULL,
-  PRIMARY KEY (username, event_id),
-  CONSTRAINT t_group_membership_t_events_event_id_fk
-  FOREIGN KEY (event_id) REFERENCES t_events (event_id)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-)
-;
-
-create index t_group_membership_t_events_event_id_fk
-  ON t_group_membership (event_id);
-
-CREATE TABLE t_reimbursement
-(
-  reimbursement_id INT AUTO_INCREMENT
-    PRIMARY KEY,
-  paying_username  VARCHAR(256) NOT NULL,
-  payed_username   VARCHAR(256) NOT NULL,
-  event_id         INT          NOT NULL,
-  amount           INT          NOT NULL,
-  date             DATE         NOT NULL,
-  CONSTRAINT t_reimbursement_reimbursement_id_uindex
-  UNIQUE (reimbursement_id),
-  CONSTRAINT t_reimbursement_t_events_event_id_fk
-  FOREIGN KEY (event_id) REFERENCES t_events (event_id)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
+--
+-- Stand-in structure for view `t_coeffsbytransaction`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `t_coeffsbytransaction`;
+CREATE TABLE `t_coeffsbytransaction` (
+   `transaction_id` int(11)
+  ,`sum` decimal(32,0)
 );
 
-CREATE INDEX t_reimbursement_t_events_event_id_fk
-  ON t_reimbursement (event_id);
+-- --------------------------------------------------------
 
-CREATE INDEX t_reimbursement_t_users_username_fk
-  ON t_reimbursement (paying_username);
+--
+-- Table structure for table `t_currencies`
+--
 
-CREATE INDEX t_reimbursement_t_users_username_payed_fk
-  ON t_reimbursement (payed_username);
+DROP TABLE IF EXISTS `t_currencies`;
+CREATE TABLE `t_currencies` (
+  `currency_code` varchar(3) NOT NULL,
+  `rounding_multiple` double NOT NULL,
+  `full_name` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-create table t_users
-(
-  username   VARCHAR(256) NOT NULL
-    PRIMARY KEY,
-  first_name VARCHAR(256) NULL,
-  last_name  VARCHAR(256) NULL,
-  email      VARCHAR(256) NULL,
-  password   VARCHAR(256) NULL,
-  CONSTRAINT t_users_username_uindex
-  UNIQUE (username)
-)
-;
+--
+-- Dumping data for table `t_currencies`
+--
 
-alter table t_expense_membership
-  ADD CONSTRAINT t_expense_membership_t_users_username_fk
-FOREIGN KEY (username) REFERENCES t_users (username)
-  ON UPDATE CASCADE
-;
+INSERT INTO `t_currencies` (`currency_code`, `rounding_multiple`, `full_name`) VALUES
+  ('AUD', 0.05, 'Australian Dollar'),
+  ('CAD', 0.05, 'Canadian Dollar'),
+  ('CHF', 0.05, 'Swiss Franc'),
+  ('EUR', 0.01, 'Euro'),
+  ('GBP', 0.01, 'Pound sterling'),
+  ('JPY', 1, 'Japanese Yen'),
+  ('USD', 0.01, 'US Dollar');
 
-alter table t_expenses
-  ADD CONSTRAINT t_expenses_t_users_username_fk
-FOREIGN KEY (buyer_username) REFERENCES t_users (username)
-  ON UPDATE CASCADE
-;
+-- --------------------------------------------------------
 
-alter table t_group_membership
-  ADD CONSTRAINT t_group_membership_t_users_username_fk
-FOREIGN KEY (username) REFERENCES t_users (username)
-  ON UPDATE CASCADE;
+--
+-- Table structure for table `t_events`
+--
 
-ALTER TABLE t_reimbursement
-  ADD CONSTRAINT t_reimbursement_t_users_username_fk
-FOREIGN KEY (paying_username) REFERENCES t_users (username)
-  ON UPDATE CASCADE;
+DROP TABLE IF EXISTS `t_events`;
+CREATE TABLE `t_events` (
+  `event_id` int(11) NOT NULL,
+  `event_name` varchar(256) NOT NULL,
+  `event_description` text,
+  `currency_code` varchar(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE t_reimbursement
-  ADD CONSTRAINT t_reimbursement_t_users_username_payed_fk
-FOREIGN KEY (payed_username) REFERENCES t_users (username)
-  ON UPDATE CASCADE;
+-- --------------------------------------------------------
 
-CREATE VIEW t_coeffsbytransaction AS
-  SELECT
-    `petits_comptes_entre_amis`.`t_expenses`.`transaction_id`           AS `transaction_id`,
-    sum(`petits_comptes_entre_amis`.`t_group_membership`.`coefficient`) AS `sum`
-  FROM ((`petits_comptes_entre_amis`.`t_expenses`
-    JOIN `petits_comptes_entre_amis`.`t_expense_membership`
-      ON ((`petits_comptes_entre_amis`.`t_expenses`.`transaction_id` =
-           `petits_comptes_entre_amis`.`t_expense_membership`.`transaction_id`))) JOIN
-    `petits_comptes_entre_amis`.`t_group_membership` ON ((
-      (`petits_comptes_entre_amis`.`t_expense_membership`.`username` =
-       `petits_comptes_entre_amis`.`t_group_membership`.`username`) AND
-      (`petits_comptes_entre_amis`.`t_expenses`.`event_id` =
-       `petits_comptes_entre_amis`.`t_group_membership`.`event_id`))))
-  GROUP BY `petits_comptes_entre_amis`.`t_expenses`.`transaction_id`;
+--
+-- Table structure for table `t_expenses`
+--
 
+DROP TABLE IF EXISTS `t_expenses`;
+CREATE TABLE `t_expenses` (
+  `transaction_id` int(11) NOT NULL,
+  `title` varchar(256) NOT NULL,
+  `description` text,
+  `amount` double NOT NULL,
+  `date` date NOT NULL,
+  `buyer_username` varchar(256) NOT NULL,
+  `event_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_expense_membership`
+--
+
+DROP TABLE IF EXISTS `t_expense_membership`;
+CREATE TABLE `t_expense_membership` (
+  `transaction_id` int(11) NOT NULL,
+  `username` varchar(256) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_group_membership`
+--
+
+DROP TABLE IF EXISTS `t_group_membership`;
+CREATE TABLE `t_group_membership` (
+  `username` varchar(256) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `coefficient` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_reimbursement`
+--
+
+DROP TABLE IF EXISTS `t_reimbursement`;
+CREATE TABLE `t_reimbursement` (
+  `reimbursement_id` int(11) NOT NULL,
+  `paying_username` varchar(256) NOT NULL,
+  `payed_username` varchar(256) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_users`
+--
+
+DROP TABLE IF EXISTS `t_users`;
+CREATE TABLE `t_users` (
+  `username` varchar(256) NOT NULL,
+  `first_name` varchar(256) DEFAULT NULL,
+  `last_name` varchar(256) DEFAULT NULL,
+  `email` varchar(256) DEFAULT NULL,
+  `password` varchar(256) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `t_coeffsbytransaction`
+--
+DROP TABLE IF EXISTS `t_coeffsbytransaction`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`php`@`localhost` SQL SECURITY DEFINER VIEW `t_coeffsbytransaction`  AS  select `t_expenses`.`transaction_id` AS `transaction_id`,sum(`t_group_membership`.`coefficient`) AS `sum` from ((`t_expenses` join `t_expense_membership` on((`t_expenses`.`transaction_id` = `t_expense_membership`.`transaction_id`))) join `t_group_membership` on(((`t_expense_membership`.`username` = `t_group_membership`.`username`) and (`t_expenses`.`event_id` = `t_group_membership`.`event_id`)))) group by `t_expenses`.`transaction_id` ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `t_currencies`
+--
+ALTER TABLE `t_currencies`
+  ADD PRIMARY KEY (`currency_code`),
+  ADD UNIQUE KEY `t_currencies_currency_code_uindex` (`currency_code`);
+
+--
+-- Indexes for table `t_events`
+--
+ALTER TABLE `t_events`
+  ADD PRIMARY KEY (`event_id`),
+  ADD UNIQUE KEY `t_events_event_id_uindex` (`event_id`),
+  ADD KEY `t_events_t_currencies_currency_code_fk` (`currency_code`);
+
+--
+-- Indexes for table `t_expenses`
+--
+ALTER TABLE `t_expenses`
+  ADD PRIMARY KEY (`transaction_id`),
+  ADD UNIQUE KEY `t_expenses_transaction_id_uindex` (`transaction_id`),
+  ADD KEY `t_expenses_t_users_username_fk` (`buyer_username`),
+  ADD KEY `t_expenses_t_events_event_id_fk` (`event_id`);
+
+--
+-- Indexes for table `t_expense_membership`
+--
+ALTER TABLE `t_expense_membership`
+  ADD PRIMARY KEY (`transaction_id`,`username`),
+  ADD KEY `t_expense_membership_t_users_username_fk` (`username`);
+
+--
+-- Indexes for table `t_group_membership`
+--
+ALTER TABLE `t_group_membership`
+  ADD PRIMARY KEY (`username`,`event_id`),
+  ADD KEY `t_group_membership_t_events_event_id_fk` (`event_id`);
+
+--
+-- Indexes for table `t_reimbursement`
+--
+ALTER TABLE `t_reimbursement`
+  ADD PRIMARY KEY (`reimbursement_id`),
+  ADD UNIQUE KEY `t_reimbursement_reimbursement_id_uindex` (`reimbursement_id`),
+  ADD KEY `t_reimbursement_t_events_event_id_fk` (`event_id`),
+  ADD KEY `t_reimbursement_t_users_username_fk` (`paying_username`),
+  ADD KEY `t_reimbursement_t_users_username_payed_fk` (`payed_username`);
+
+--
+-- Indexes for table `t_users`
+--
+ALTER TABLE `t_users`
+  ADD PRIMARY KEY (`username`),
+  ADD UNIQUE KEY `t_users_username_uindex` (`username`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `t_events`
+--
+ALTER TABLE `t_events`
+  MODIFY `event_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+--
+-- AUTO_INCREMENT for table `t_expenses`
+--
+ALTER TABLE `t_expenses`
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+--
+-- AUTO_INCREMENT for table `t_reimbursement`
+--
+ALTER TABLE `t_reimbursement`
+  MODIFY `reimbursement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `t_events`
+--
+ALTER TABLE `t_events`
+  ADD CONSTRAINT `t_events_t_currencies_currency_code_fk` FOREIGN KEY (`currency_code`) REFERENCES `t_currencies` (`currency_code`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_expenses`
+--
+ALTER TABLE `t_expenses`
+  ADD CONSTRAINT `t_expenses_t_events_event_id_fk` FOREIGN KEY (`event_id`) REFERENCES `t_events` (`event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `t_expenses_t_users_username_fk` FOREIGN KEY (`buyer_username`) REFERENCES `t_users` (`username`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_expense_membership`
+--
+ALTER TABLE `t_expense_membership`
+  ADD CONSTRAINT `t_expense_membership_t_expenses_transaction_id_fk` FOREIGN KEY (`transaction_id`) REFERENCES `t_expenses` (`transaction_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `t_expense_membership_t_users_username_fk` FOREIGN KEY (`username`) REFERENCES `t_users` (`username`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_group_membership`
+--
+ALTER TABLE `t_group_membership`
+  ADD CONSTRAINT `t_group_membership_t_events_event_id_fk` FOREIGN KEY (`event_id`) REFERENCES `t_events` (`event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `t_group_membership_t_users_username_fk` FOREIGN KEY (`username`) REFERENCES `t_users` (`username`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_reimbursement`
+--
+ALTER TABLE `t_reimbursement`
+  ADD CONSTRAINT `t_reimbursement_t_events_event_id_fk` FOREIGN KEY (`event_id`) REFERENCES `t_events` (`event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `t_reimbursement_t_users_username_fk` FOREIGN KEY (`paying_username`) REFERENCES `t_users` (`username`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `t_reimbursement_t_users_username_payed_fk` FOREIGN KEY (`payed_username`) REFERENCES `t_users` (`username`) ON UPDATE CASCADE;
+
+CREATE USER 'php'@'localhost' IDENTIFIED WITH mysql_native_password AS '';
+GRANT USAGE ON *.* TO 'php'@'localhost';
+GRANT ALL PRIVILEGES ON `petits\_comptes\_entre\_amis`.* TO 'php'@'localhost' WITH GRANT OPTION;
