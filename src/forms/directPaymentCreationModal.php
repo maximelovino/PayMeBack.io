@@ -13,7 +13,7 @@
 			require_once 'DBConnection.php';
 			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
 			?>
-            <form action="events.php" method="post">
+            <form action="../events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="paying_user">Who is paying?</label>

@@ -9,7 +9,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="deleteExpense.php" method="post">
+            <form action="/delete/deleteExpense.php" method="post">
                 <div class="modal-body">
                     <input type="text" name="id" readonly hidden value="<?php echo $expense['transaction_id']; ?>">
                     <p class="lead">Are you sure you want to delete this expense?</p>

@@ -12,7 +12,7 @@
 			$redraw = isset($_SESSION['showExpenseModal']) && $_SESSION['showExpenseModal'];
 			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
 			?>
-            <form action="events.php" method="post">
+            <form action="../events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group" hidden>
                         <label for="eventID">Event ID</label>

@@ -18,9 +18,9 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
                 data-target="#deleteConfirmationModal">Delete Event
         </button>
 		<?php
-		include "reimbursementModal.php";
-		include 'expenseCreationModal.php';
-		include 'deleteConfirmationModal.php';
+		include "forms/directPaymentCreationModal.php";
+		include 'forms/expenseCreationModal.php';
+		include 'delete/deleteConfirmationModal.php';
 		?>
         <div id="expenseModalPlaceHolder"></div>
         <div id="directPaymentModalPlaceHolder"></div>
@@ -134,7 +134,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
             $('.expense').click(function () {
                 let id = $(this).attr('id');
                 $.ajax({
-                    url: 'singleExpenseModal.php',
+                    url: 'modalViews/singleExpenseModal.php',
                     data: 'expense=' + id,
                     success: function (data) {
                         $('#expenseModalPlaceHolder').html(data);
@@ -147,7 +147,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
                 let id = $(this).attr('id');
                 console.log(id);
                 $.ajax({
-                    url: 'singleDirectPaymentModal.php',
+                    url: 'modalViews/singleDirectPaymentModal.php',
                     data: 'directPayment=' + id,
                     success: (data) => {
                         $('#directPaymentModalPlaceHolder').html(data);

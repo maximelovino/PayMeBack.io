@@ -3,8 +3,8 @@ session_start();
 if (!isset($_SESSION['username'])) {
 	exit(0);
 }
-require_once "DBConnection.php";
-require_once "DataValidator.php";
+require_once "../DBConnection.php";
+require_once "../DataValidator.php";
 $id = $_GET['expense'];
 $expense = DBConnection::getInstance()->getSingleExpenseDetail($id);
 $balance = DBConnection::getInstance()->getExpensesByUserForExpense($id);
@@ -12,7 +12,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($expense['event_id']
 if (!DataValidator::hasUserAccessToEvent($_SESSION['username'], $event['event_id'])) {
 	exit(0);
 }
-include 'deleteExpenseConfirmationModal.php'
+include '../delete/deleteExpenseConfirmationModal.php'
 ?>
 
 <div class="modal fade" id="singleExpenseModal" tabindex="-1" role="dialog"

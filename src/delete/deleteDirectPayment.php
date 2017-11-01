@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once "DBConnection.php";
-require_once "DataValidator.php";
+require_once "../DBConnection.php";
+require_once "../DataValidator.php";
 if (!isset($_SESSION)) {
 	header('location:index.php');
 }
@@ -12,6 +12,6 @@ if (isset($_POST['deleteDirectPayment'])) {
 	if (DataValidator::hasUserAccessToEvent($_SESSION['username'], $payment['event_id'])) {
 		DBConnection::getInstance()->deleteDirectPaymentByID($id);
 	}
-	header('location: events.php?id=' . $payment['event_id']);
+	header('location: /events.php?id=' . $payment['event_id']);
 }
 ?>

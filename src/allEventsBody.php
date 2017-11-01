@@ -4,7 +4,7 @@
             Create event
         </button>
 		<?php
-		include "eventCreationModal.php"; ?>
+		include "forms/eventCreationModal.php"; ?>
     </div>
     <div class="col" id="content-right">
         <p class="h2">My events</p>

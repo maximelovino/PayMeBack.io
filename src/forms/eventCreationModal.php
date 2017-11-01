@@ -8,7 +8,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="events.php" method="post">
+            <form action="../events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="eventTitle">Title of the event</label>

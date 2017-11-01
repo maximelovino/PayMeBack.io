@@ -68,7 +68,7 @@ mysql -u root -p
 
 Et ensuite rentrer le mot de passe root défini précedemment.
 
-Ensuite, depuis le prompt de MySQL, nous allons charger le fichier sql concernant la configuration de la base de données avec la commande suivante:
+Ensuite, depuis le prompt de MySQL, nous allons charger le fichier sql (le fichier sql est `db/sql.db`) concernant la configuration de la base de données avec la commande suivante:
 
 ```
 source <path_to_sql_file>;

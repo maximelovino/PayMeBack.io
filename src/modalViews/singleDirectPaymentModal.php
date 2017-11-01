@@ -3,8 +3,8 @@ session_start();
 if (!isset($_SESSION['username'])) {
 	exit(0);
 }
-require_once "DBConnection.php";
-require_once "DataValidator.php";
+require_once "../DBConnection.php";
+require_once "../DataValidator.php";
 $id = $_GET['directPayment'];
 $payment = DBConnection::getInstance()->getDirectPayment($id);
 $payingUser = DBConnection::getInstance()->getSingleUser($payment['paying_username']);
@@ -14,7 +14,7 @@ $event = DBConnection::getInstance()->selectSingleEventByID($payment['event_id']
 if (!DataValidator::hasUserAccessToEvent($_SESSION['username'], $payment['event_id'])) {
 	exit(0);
 }
-include 'deleteDirectPaymentConfirmationModal.php'
+include '../delete/deleteDirectPaymentConfirmationModal.php'
 ?>
 
 <div class="modal fade" id="singleDirectPaymentModal" tabindex="-1" role="dialog"
