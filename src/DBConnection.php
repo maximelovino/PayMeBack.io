@@ -17,7 +17,11 @@ class DBConnection {
 	 * DBConnection private constructor.
 	 */
 	private function __construct() {
-		$this->connection = new PDO("mysql:host={$this->host};dbname={$this->dbName};charset={$this->charset}", $this->username, $this->password);
+		try {
+			$this->connection = new PDO("mysql:host={$this->host};dbname={$this->dbName};charset={$this->charset}", $this->username, $this->password);
+		} catch (Exception $e) {
+			die($e->getMessage());
+		}
 	}
 
 	/**

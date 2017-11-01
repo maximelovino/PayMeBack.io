@@ -54,7 +54,7 @@ Il s'agit ici d'une classe non instantiable contenant uniquement des fonctions s
 
 ### API fixer.io et page d'accueil
 
-
+//TODO
 
 ## Marche à suivre pour l'utilisateur
 
@@ -63,7 +63,7 @@ Il s'agit ici d'une classe non instantiable contenant uniquement des fonctions s
 Tout d'abord, sur une machine linux, il faudra installer Apache et MySQL avec la commande:
 
 ```
-sudo apt-get install apache2 mysql-server php7.0 libapache2-mod-php7.0
+sudo apt-get install apache2 mysql-server php7.0 libapache2-mod-php7.0 php7.0-mysql
 ```
 
 L'installation du serveur MySQL vous demandera de saisir un mot de passe root pour le serveur MySQL.

@@ -141,6 +141,22 @@ CREATE TABLE `t_users` (
   `password` varchar(256) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+INSERT INTO `t_users` (`username`, `first_name`, `last_name`, `email`, `password`) VALUES
+  ('maximelovino', 'Maxime', 'Lovino', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi'),
+  ('thomasibanez', 'Thomas', 'Ibanez', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi'),
+  ('marcolopes', 'Marco', 'Lopes', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi'),
+  ('vincenttournier', 'Vincent', 'Tournier', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi'),
+  ('francoiseichinger', 'Francois', 'Eichinger', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi'),
+  ('matthieuconstant', 'Matthieu', 'Constant', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi'),
+  ('cyriliseli', 'Cyril', 'Iseli', 'maximelovino@gmail.com',
+   '$2y$10$XFsHflm31t8PVP8rMu92Aud9ZlR18jCDnSxoJ9pZ3rUNE6zThVvKi');
+
 -- --------------------------------------------------------
 
 --
