@@ -52,6 +52,16 @@ Il s'agit ici d'une classe suivant le pattern singleton et fournissant une insta
 
 Il s'agit ici d'une classe non instantiable contenant uniquement des fonctions statiques servant à la validation des données à la réception des formulaires. Cette classe contient donc des fonction qui vérifient la validité des données saisies à l'aide de RegEx ainsi que leur logique en interrogeant la BDD, par exemple pour vérifier qu'un utilisateur a accès à un certain événement.
 
+### Pages
+
+### Modals
+
+#### Formulaires
+
+#### Delete
+
+### Ajax, JQuery et Fetch
+
 ### API fixer.io et page d'accueil
 
 //TODO
