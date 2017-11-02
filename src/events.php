@@ -79,7 +79,11 @@ if (isset($_POST['newReimbursement'])) {
 	if ($validReimbursementDate && $validReimbursementPayer && $validReimbursementPayed && $validReimbursementAmount && $usersDifferent) {
 		DBConnection::getInstance()->insertDirectPayment($payingUser, $payedUser, $reimbursementEventID, $amount, $date);
 	} else {
-		//TODO show modal here
+		$_SESSION['showDirectPaymentModal'] = true;
+		$_SESSION['payingUser'] = $payingUser;
+		$_SESSION['payedUser'] = $payedUser;
+		$_SESSION['amount'] = $amount;
+		$_SESSION['date'] = $date;
 	}
 	header('location: events.php?id=' . $reimbursementEventID);
 }

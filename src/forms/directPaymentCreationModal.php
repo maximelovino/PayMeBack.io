@@ -10,37 +10,53 @@
                 </button>
             </div>
 			<?php
-			require_once 'DBConnection.php';
+			$redraw = isset($_SESSION['showDirectPaymentModal']) && $_SESSION['showDirectPaymentModal'];
 			$people = DBConnection::getInstance()->selectUsersForEvent($event['event_id']);
 			?>
             <form action="../events.php" method="post">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="paying_user">Who is paying?</label>
-                        <select name="paying_user" id="paying_user" class="custom-select form-control">
-							<?php
-							foreach ($people as $user) {
-								if ($user['username'] == $_SESSION['username']) {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '" selected>' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
-								} else {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
-								}
+						<?php
+						$valueToMatch = $_SESSION['username'];
+						$class = "custom-select form-control";
+						if ($redraw) {
+							$valueToMatch = $_SESSION['payingUser'];
+							if (!$validReimbursementPayer) {
+								$class .= " is-invalid";
 							}
-							?>
+						}
+						echo '<select name="paying_user" id="paying_user" class="' . $class . '">';
+						foreach ($people as $user) {
+							if ($user['username'] == $valueToMatch) {
+								echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '" selected>' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
+							} else {
+								echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
+							}
+						}
+						?>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="payed_user">Who is being payed?</label>
-                        <select name="payed_user" id="payed_user" class="form-control custom-select">
-							<?php
-							foreach ($people as $user) {
-								if ($user['username'] == $_SESSION['username']) {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
-								} else {
-									echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
-								}
+						<?php
+						$valueToMatch = $_SESSION['username'];
+						$class = "custom-select form-control";
+						if ($redraw) {
+							$valueToMatch = $_SESSION['payedUser'];
+							if (!$validReimbursementPayed) {
+								$class .= " is-invalid";
 							}
-							?>
+						}
+						echo '<select name="payed_user" id="payed_user" class="' . $class . '">';
+						foreach ($people as $user) {
+							if ($user['username'] == $valueToMatch) {
+								echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '" selected>' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
+							} else {
+								echo '<option id="' . $user['username'] . '" value="' . $user['username'] . '">' . DBConnection::getInstance()->getFullNameForUser($user['username']) . '</option>';
+							}
+						}
+						?>
                         </select>
                     </div>
                     <div class="form-group" style="display: none">
@@ -51,14 +67,32 @@
                         <label for="amount">How much?</label>
                         <div class="input-group">
                             <span class="input-group-addon"><?php echo $event['currency_code']; ?></span>
-                            <input type="text" class="form-control" name="amount" id="amount"
-                                   placeholder="0.00" required>
+							<?php
+							$value = "";
+							$class = "form-control";
+							if ($redraw) {
+								$value = $_SESSION['amount'];
+								if (!$validReimbursementAmount) {
+									$class .= " is-invalid";
+								}
+							}
+							echo '<input type="text" class="' . $class . '" name="amount" id="amount" placeholder="0.00" value="' . $value . '" required>'
+							?>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="date">Date of the expense</label>
-                        <input type="date" value="<?php echo date('Y-m-d') ?>" class="form-control" id="date"
-                               name="date" required>
+						<?php
+						$value = date('Y-m-d');
+						$class = "form-control";
+						if ($redraw) {
+							$value = $_SESSION['date'];
+							if (!$validReimbursementDate) {
+								$class .= " is-invalid";
+							}
+						}
+						echo '<input type="date" value="' . $value . '" class="' . $class . '" id="date" name="date" required>';
+						?>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

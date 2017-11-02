@@ -165,6 +165,10 @@ $event = DBConnection::getInstance()->selectSingleEventByID($id);
 			echo '<script type="text/javascript">$("#createExpenseModal").modal()</script>';
 			$_SESSION['showExpenseModal'] = false;
 		}
+		if (isset($_SESSION['showDirectPaymentModal']) && $_SESSION['showDirectPaymentModal']) {
+			echo '<script type="text/javascript">$("#createReimbursementModal").modal()</script>';
+			$_SESSION['showDirectPaymentModal'] = false;
+		}
 		?>
     </div>
 </div>
