@@ -12,7 +12,7 @@ Toute les fonctionnalités demandées sont présentes. On pourrait encore ajoute
 
 ## Structure de la base de données
 
-![Database schema](../db/database.png)
+![Database schema](database.png)
 
 ### t_users
 
